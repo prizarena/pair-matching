@@ -12,28 +12,28 @@ import (
 	"github.com/prizarena/rock-paper-scissors/server-go/rpstrans"
 )
 
-type rpsAppContext struct {
+type pairAppContext struct {
 }
 
-func (appCtx rpsAppContext) AppUserEntityKind() string {
+func (appCtx pairAppContext) AppUserEntityKind() string {
 	return rpsmodels.UserKind
 }
 
-func (appCtx rpsAppContext) AppUserEntityType() reflect.Type {
+func (appCtx pairAppContext) AppUserEntityType() reflect.Type {
 	return reflect.TypeOf(&rpsmodels.UserEntity{})
 }
 
-func (appCtx rpsAppContext) NewBotAppUserEntity() bots.BotAppUser {
+func (appCtx pairAppContext) NewBotAppUserEntity() bots.BotAppUser {
 	return &rpsmodels.UserEntity{
 		DtCreated: time.Now(),
 	}
 }
 
-func (appCtx rpsAppContext) NewAppUserEntity() strongo.AppUser {
+func (appCtx pairAppContext) NewAppUserEntity() strongo.AppUser {
 	return appCtx.NewBotAppUserEntity()
 }
 
-func (appCtx rpsAppContext) GetTranslator(c context.Context) strongo.Translator {
+func (appCtx pairAppContext) GetTranslator(c context.Context) strongo.Translator {
 	return strongo.NewMapTranslator(c, rpstrans.TRANS)
 }
 
@@ -44,7 +44,7 @@ func (LocalesProvider) GetLocaleByCode5(code5 string) (strongo.Locale, error) {
 	return strongo.LocaleEnUS, nil
 }
 
-func (appCtx rpsAppContext) SupportedLocales() strongo.LocalesProvider {
+func (appCtx pairAppContext) SupportedLocales() strongo.LocalesProvider {
 	return RpsLocalesProvider{}
 }
 
@@ -64,7 +64,7 @@ func (RpsLocalesProvider) GetLocaleByCode5(code5 string) (locale strongo.Locale,
 
 var _ strongo.LocalesProvider = (*RpsLocalesProvider)(nil)
 
-func (appCtx rpsAppContext) GetBotChatEntityFactory(platform string) func() bots.BotChat {
+func (appCtx pairAppContext) GetBotChatEntityFactory(platform string) func() bots.BotChat {
 	switch platform {
 	case telegram.PlatformID:
 		return func() bots.BotChat {
@@ -77,5 +77,5 @@ func (appCtx rpsAppContext) GetBotChatEntityFactory(platform string) func() bots
 	}
 }
 
-var _ bots.BotAppContext = (*rpsAppContext)(nil)
+var _ bots.BotAppContext = (*pairAppContext)(nil)
 

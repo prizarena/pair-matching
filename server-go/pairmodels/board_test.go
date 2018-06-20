@@ -11,7 +11,7 @@ func TestPairsBoardEntity_DrawBoard(t *testing.T) {
 		SizeX: 3,
 		SizeY: 4,
 	}
-	expects := strings.Join([]string{"123", "456", "789", "abc"}, "\n") + "\n"
+	expects := strings.Join([]string{"", "123", "456", "789", "abc", ""}, "\n")
 	if result := board.DrawBoard(); result != expects {
 		t.Error("Unexpected result:\n" + result)
 	}

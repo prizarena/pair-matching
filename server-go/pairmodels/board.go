@@ -39,6 +39,7 @@ func (eh PairsBoard) SetEntity(entity interface{}) {
 func (board PairsBoardEntity) DrawBoard() string {
 	s := new(bytes.Buffer)
 
+	s.WriteRune('\n')
 	for i := 0; i < board.SizeY; i++ {
 		first := board.SizeX*i
 		s.WriteString(board.Cells[first:first+board.SizeX])

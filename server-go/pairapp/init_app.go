@@ -5,14 +5,14 @@ import (
 	"github.com/prizarena/rock-paper-scissors/server-go/rpsbot"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
-	"github.com/prizarena/rock-paper-scissors/server-go/rpsdal/rpsgaedal"
+	"github.com/prizarena/pair-matching/server-go/pairdal/pairgaedal"
 )
 
 func InitApp(botHost bots.BotHost) {
-	rpsgaedal.RegisterDal()
+	pairgaedal.RegisterDal()
 
 	httpRouter := httprouter.New()
 	http.Handle("/", httpRouter)
 
-	rpsbot.InitBot(httpRouter, botHost, rpsAppContext{})
+	rpsbot.InitBot(httpRouter, botHost, pairAppContext{})
 }
