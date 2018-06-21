@@ -26,12 +26,6 @@ func Bots(c context.Context, env strongo.Environment, router bots.WebhooksRouter
 					pairsecrets.TelegramProdBot, pairsecrets.TelegramProdToken,
 					"", "", pairsecrets.GaTrackingID, strongo.LocaleEnUS),
 			)
-			// case strongo.EnvLocal:
-			// 	botsBy = bots.NewBotSettingsBy(routerByProfile,
-			// 		telegram.NewTelegramBot(strongo.EnvLocal, BotProfile,
-			// 			rpssecrets.TelegramLocalBot, rpssecrets.TelegramLocalToken,
-			// 			"", "", "", strongo.LocaleEnUS),
-			// 	)
 		default:
 			log.Errorf(c, "Unknown environment: %v=%v", env, strongo.EnvironmentNames[env])
 		}

@@ -1,34 +1,41 @@
 package pairmodels
 
-import "github.com/strongo/db"
+import (
+	"github.com/strongo/db"
+	"time"
+)
 
-type BoardPlayerEntity struct {
-	Turns   int    `datastore:",noindex,omitempty"`
-	Matched string `datastore:",noindex,omitempty"`
-	OpenCell    string `datastore:",noindex,omitempty"`
+type PairsPlayerEntity struct {
+	Created      time.Time `datastore:"dc,noindex,omitempty"`
+	LastMove     time.Time `datastore:"dl,noindex,omitempty"`
+	TurnsCount   int       `datastore:"tc,noindex,omitempty"`
+	MatchedCount int       `datastore:"mc,noindex,omitempty"`
+	MatchedItems string    `datastore:"mi,noindex,omitempty"`
+	OpenX        int       `datastore:"ox,noindex,omitempty"`
+	OpenY        int       `datastore:"oy,noindex,omitempty"`
 }
 
-const BoardPlayerKind = "P"
+const PairsPlayerKind = "P"
 
-type BoardPlayer struct {
+type PairsPlayer struct {
 	db.StringID
-	*BoardPlayerEntity
+	*PairsPlayerEntity
 }
 
-var _ db.EntityHolder = (*BoardPlayer)(nil)
+var _ db.EntityHolder = (*PairsPlayer)(nil)
 
-func (BoardPlayer) Kind() string {
-	return BoardPlayerKind
+func (PairsPlayer) Kind() string {
+	return PairsPlayerKind
 }
 
-func (player BoardPlayer) Entity() interface{} {
-	return player.BoardPlayerEntity
+func (player PairsPlayer) Entity() interface{} {
+	return player.PairsPlayerEntity
 }
 
-func (BoardPlayer) NewEntity() interface{} {
-	return new(BoardPlayerEntity)
+func (PairsPlayer) NewEntity() interface{} {
+	return new(PairsPlayerEntity)
 }
 
-func (player BoardPlayer) SetEntity(entity interface{}) {
-	player.BoardPlayerEntity = entity.(*BoardPlayerEntity)
+func (player PairsPlayer) SetEntity(entity interface{}) {
+	player.PairsPlayerEntity = entity.(*PairsPlayerEntity)
 }

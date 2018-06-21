@@ -4,27 +4,27 @@ import (
 	"context"
 	"github.com/pkg/errors"
 	"github.com/strongo/app"
-	"github.com/prizarena/rock-paper-scissors/server-go/rpsmodels"
 	"github.com/strongo/bots-framework/core"
 	"github.com/strongo/bots-framework/platforms/telegram"
 	"reflect"
 	"time"
-	"github.com/prizarena/rock-paper-scissors/server-go/rpstrans"
+	"github.com/prizarena/pair-matching/server-go/pairmodels"
+	"github.com/prizarena/pair-matching/server-go/pairtrans"
 )
 
 type pairAppContext struct {
 }
 
 func (appCtx pairAppContext) AppUserEntityKind() string {
-	return rpsmodels.UserKind
+	return pairmodels.UserKind
 }
 
 func (appCtx pairAppContext) AppUserEntityType() reflect.Type {
-	return reflect.TypeOf(&rpsmodels.UserEntity{})
+	return reflect.TypeOf(&pairmodels.UserEntity{})
 }
 
 func (appCtx pairAppContext) NewBotAppUserEntity() bots.BotAppUser {
-	return &rpsmodels.UserEntity{
+	return &pairmodels.UserEntity{
 		DtCreated: time.Now(),
 	}
 }
@@ -34,7 +34,7 @@ func (appCtx pairAppContext) NewAppUserEntity() strongo.AppUser {
 }
 
 func (appCtx pairAppContext) GetTranslator(c context.Context) strongo.Translator {
-	return strongo.NewMapTranslator(c, rpstrans.TRANS)
+	return strongo.NewMapTranslator(c, pairtrans.TRANS)
 }
 
 type LocalesProvider struct {
@@ -45,13 +45,13 @@ func (LocalesProvider) GetLocaleByCode5(code5 string) (strongo.Locale, error) {
 }
 
 func (appCtx pairAppContext) SupportedLocales() strongo.LocalesProvider {
-	return RpsLocalesProvider{}
+	return PairLocalesProvider{}
 }
 
-type RpsLocalesProvider struct {
+type PairLocalesProvider struct {
 }
 
-func (RpsLocalesProvider) GetLocaleByCode5(code5 string) (locale strongo.Locale, err error) {
+func (PairLocalesProvider) GetLocaleByCode5(code5 string) (locale strongo.Locale, err error) {
 	switch code5 {
 	case strongo.LocaleCodeEnUS:
 		return strongo.LocaleEnUS, nil
@@ -62,7 +62,7 @@ func (RpsLocalesProvider) GetLocaleByCode5(code5 string) (locale strongo.Locale,
 	}
 }
 
-var _ strongo.LocalesProvider = (*RpsLocalesProvider)(nil)
+var _ strongo.LocalesProvider = (*PairLocalesProvider)(nil)
 
 func (appCtx pairAppContext) GetBotChatEntityFactory(platform string) func() bots.BotChat {
 	switch platform {
