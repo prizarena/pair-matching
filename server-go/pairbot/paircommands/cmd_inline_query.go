@@ -27,7 +27,7 @@ var inlineQueryCommand = bots.NewInlineQueryCommand(
 
 		switch {
 		case strings.HasPrefix(inlineQuery.Text, "tournament?id="):
-			//return inlineQueryTournament(whc, inlineQuery)
+			// return inlineQueryTournament(whc, inlineQuery)
 		case inlineQuery.Text == "" || inlineQuery.Text == "play" || strings.HasPrefix(inlineQuery.Text, "play?tournament="):
 			return inlineQueryPlay(whc, inlineQuery)
 		}
@@ -38,8 +38,6 @@ var inlineQueryCommand = bots.NewInlineQueryCommand(
 // func inlineQueryDefault(whc bots.WebhookContext, inlineQuery pabot.InlineQueryContext) (m bots.MessageFromBot, err error) {
 // 	return
 // }
-
-
 
 func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryContext) (m bots.MessageFromBot, err error) {
 	return pabot.ProcessInlineQueryTournament(whc, inlineQuery, rpssecrets.RpsPrizarenaGameID, "tournament",
@@ -52,10 +50,10 @@ func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryConte
 				t := strongo.NewSingleMapTranslator(strongo.LocalesByCode5[lang], translator)
 				newBoard := pairmodels.PairsBoard{
 					PairsBoardEntity: &pairmodels.PairsBoardEntity{
-						SizeY: 8,
-						SizeX: 8,
+						SizeY:           8,
+						SizeX:           8,
 						BoardEntityBase: turnbased.BoardEntityBase{Lang: lang, Round: 1},
-						Cells: pairmodels.Shuffle(8, 8),
+						Cells:           pairmodels.Shuffle(8, 8),
 					},
 				}
 				newBoard.Created = time.Now()
@@ -98,9 +96,13 @@ func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryConte
 func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament *pamodels.Tournament, board pairmodels.PairsBoard) (m bots.MessageFromBot, err error) {
 	kbRows := make([][]tgbotapi.InlineKeyboardButton, board.SizeY)
 	for y, row := range board.Rows() {
+		if len(row) != board.SizeX {
+			err = fmt.Errorf("len(board.Rows()[%v]) != board.SizeX: %v != %v", y, len(row), board.SizeX)
+			return
+		}
 		kbRow := make([]tgbotapi.InlineKeyboardButton, board.SizeX)
 		for x, cell := range row {
-			kbRow[y] = tgbotapi.InlineKeyboardButton{Text: string(cell), CallbackData: fmt.Sprintf("open?x=%v&y%v", x+1, y+1)}
+			kbRow[x] = tgbotapi.InlineKeyboardButton{Text: string(cell), CallbackData: fmt.Sprintf("open?x=%v&y%v", x+1, y+1)}
 		}
 		kbRows[y] = kbRow
 	}

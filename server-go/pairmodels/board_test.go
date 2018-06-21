@@ -28,6 +28,22 @@ func TestPairsBoardEntity_DrawBoard_emoji(t *testing.T) {
 		t.Error("Unexpected result:\n" + result)
 	}
 
+	board.Cells = Shuffle(3, 4)
+	rows := board.Rows()
+	if len(rows) != 4 {
+		t.Errorf("len(rows) != 4: %v", len(rows))
+	}
+	for y, row := range rows {
+		if len(row) != 3 {
+			t.Errorf("len(rows[%v]) != 3: %v", y, len(row))
+		}
+		for x, r := range row {
+			if r == 0 {
+				t.Errorf("rows[%v][%v] == 0", y, x)
+			}
+		}
+	}
+
 
 	//🍓 Strawberry
 	//🥝 Kiwi Fruit
@@ -118,4 +134,27 @@ func TestPairsBoardEntity_DrawBoard_emoji(t *testing.T) {
 	//Categories
 	//😃 Smileys & People
 
+}
+
+
+func TestShuffle(t *testing.T) {
+
+	test := func(x, y int) {
+		s := Shuffle(x, y)
+		var itemsCount int
+		counts := make(map[rune]int, x*y/2)
+		for _, r := range s {
+			itemsCount++
+			counts[r]++
+			if counts[r] > 2 {
+				t.Errorf("More then 2 items of %v", r)
+			}
+
+		}
+		if itemsCount != x*y {
+			t.Errorf("Expectet %v items, got %v", x*y, itemsCount)
+		}
+		// t.Logf("Board:" + s)
+	}
+	test(3, 4)
 }

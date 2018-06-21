@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"github.com/prizarena/turn-based"
 	"math/rand"
+	"time"
 )
 
 type PairsBoardEntity struct {
@@ -150,7 +151,7 @@ func Shuffle(x, y int) string {
 		items[i+pairsCount] = available[randIndex]
 		available = append(available[:randIndex], available[randIndex+1:]...)
 	}
-	shuffle(rand.New(rand.NewSource(rand.Int63())), len(items), func(i, j int) {
+	shuffle(rand.New(rand.NewSource(time.Now().UnixNano())), len(items), func(i, j int) {
 		items[i], items[j] = items[j], items[i]
 	})
 	s := new(bytes.Buffer)
