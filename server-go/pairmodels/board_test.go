@@ -3,6 +3,7 @@ package pairmodels
 import (
 	"testing"
 	"strings"
+	"fmt"
 )
 
 func TestPairsBoardEntity_DrawBoard_ascii(t *testing.T) {
@@ -28,133 +29,89 @@ func TestPairsBoardEntity_DrawBoard_emoji(t *testing.T) {
 		t.Error("Unexpected result:\n" + result)
 	}
 
-	board.Cells = Shuffle(3, 4)
-	rows := board.Rows()
-	if len(rows) != 4 {
-		t.Errorf("len(rows) != 4: %v", len(rows))
-	}
-	for y, row := range rows {
-		if len(row) != 3 {
-			t.Errorf("len(rows[%v]) != 3: %v", y, len(row))
+	testShuffle := func(width, height int) {
+		t.Helper()
+		var board PairsBoardEntity
+		board.SizeX = width
+		board.SizeY = height
+		board.Cells = Shuffle(width, height)
+		rows := board.Rows()
+		if len(rows) != height {
+			t.Errorf("len(rows) != %v: %v", height, len(rows))
 		}
-		for x, r := range row {
-			if r == 0 {
-				t.Errorf("rows[%v][%v] == 0", y, x)
+		for rowIndex, row := range rows {
+			if len(row) != width {
+				t.Errorf("len(rows[%v]) != %v: %v", rowIndex, width, len(row))
+			}
+			for colIndex, r := range row {
+				if r == 0 {
+					t.Errorf("rows[%v][%v] == 0", colIndex, rowIndex)
+				}
 			}
 		}
 	}
 
-
-	//🍓 Strawberry
-	//🥝 Kiwi Fruit
-	//🍅 Tomato
-	//🥥 Coconut
-	//🥑 Avocado
-	//🍆 Eggplant
-	//🥔 Potato
-	//🥕 Carrot
-	//🌽 Ear of Corn
-	//🌶 Hot Pepper
-	//🥒 Cucumber
-	//🥦 Broccoli
-	//🍄 Mushroom
-	//🥜 Peanuts
-	//🌰 Chestnut
-	//🍞 Bread
-	//🥐 Croissant
-	//🥖 Baguette Bread
-	//🥨 Pretzel
-	//🥞 Pancakes
-	//🧀 Cheese Wedge
-	//🍖 Meat on Bone
-	//🍗 Poultry Leg
-	//🥩 Cut of Meat
-	//🥓 Bacon
-	//🍔 Hamburger
-	//🍟 French Fries
-	//🍕 Pizza
-	//🌭 Hot Dog
-	//🥪 Sandwich
-	//🌮 Taco
-	//🌯 Burrito
-	//🍳 Cooking
-	//🍲 Pot of Food
-	//🥣 Bowl With Spoon
-	//🥗 Green Salad
-	//🍿 Popcorn
-	//🥫 Canned Food
-	//🍱 Bento Box
-	//🍘 Rice Cracker
-	//🍙 Rice Ball
-	//🍚 Cooked Rice
-	//🍛 Curry Rice
-	//🍜 Steaming Bowl
-	//🍝 Spaghetti
-	//🍠 Roasted Sweet Potato
-	//🍢 Oden
-	//🍣 Sushi
-	//🍤 Fried Shrimp
-	//🍥 Fish Cake With Swirl
-	//🍡 Dango
-	//🥟 Dumpling
-	//🥠 Fortune Cookie
-	//🥡 Takeout Box
-	//🍦 Soft Ice Cream
-	//🍧 Shaved Ice
-	//🍨 Ice Cream
-	//🍩 Doughnut
-	//🍪 Cookie
-	//🎂 Birthday Cake
-	//🍰 Shortcake
-	//🥧 Pie
-	//🍫 Chocolate Bar
-	//🍬 Candy
-	//🍭 Lollipop
-	//🍮 Custard
-	//🍯 Honey Pot
-	//🍼 Baby Bottle
-	//🥛 Glass of Milk
-	//☕ Hot Beverage
-	//🍵 Teacup Without Handle
-	//🍶 Sake
-	//🍾 Bottle With Popping Cork
-	//🍷 Wine Glass
-	//🍸 Cocktail Glass
-	//🍹 Tropical Drink
-	//🍺 Beer Mug
-	//🍻 Clinking Beer Mugs
-	//🥂 Clinking Glasses
-	//🥃 Tumbler Glass
-	//🥤 Cup With Straw
-	//🥢 Chopsticks
-	//🍽 Fork and Knife With Plate
-	//🍴 Fork and Knife
-	//🥄 Spoon
-	//
-	//Categories
-	//😃 Smileys & People
-
+	testShuffle(2,2)
+	testShuffle(3,4)
+	testShuffle(8,8)
 }
 
 
 func TestShuffle(t *testing.T) {
 
-	test := func(x, y int) {
+	test := func(n, x, y int) {
 		s := Shuffle(x, y)
-		var itemsCount int
-		counts := make(map[rune]int, x*y/2)
-		for _, r := range s {
-			itemsCount++
-			counts[r]++
-			if counts[r] > 2 {
-				t.Errorf("More then 2 items of %v", r)
-			}
-
+		if err := verifyBoard(x, y, s); err != nil {
+			t.Errorf("Iteration %d shuffling %vx%v: %v", n, x, y, err)
 		}
-		if itemsCount != x*y {
-			t.Errorf("Expectet %v items, got %v", x*y, itemsCount)
-		}
-		// t.Logf("Board:" + s)
 	}
-	test(3, 4)
+	test(1,2, 2)
+	test(2,3, 4)
+	test(3,8, 8)
+}
+
+func verifyBoard(x, y int, s string) (err error){
+	var itemsCount int
+	counts := make(map[rune]int, x*y/2)
+	for _, r := range s {
+		itemsCount++
+		counts[r]++
+		if counts[r] > 2 {
+			return fmt.Errorf("More then 2 items of %v", r)
+		}
+
+	}
+	if itemsCount != x*y {
+		fmt.Errorf("Expectet %v items, got %v", x*y, itemsCount)
+	}
+	return nil
+}
+
+func TestGetCell(t *testing.T) {
+	board := PairsBoardEntity{
+		Cells: "🍇🍈🍉🍊🍋🍌🍍🍎🍏🍐🍑🍒",
+		SizeX: 3,
+		SizeY: 4,
+	}
+	testCell := func(x, y int, expects rune) {
+		t.Helper()
+		if v := board.GetCell(x, y); v != expects {
+			t.Errorf("%d:%d expected %v got %v", x, y, string(expects), string(v))
+		}
+	}
+	testCell(1, 1, '🍇')
+	testCell(2, 1, '🍈')
+	testCell(3, 1, '🍉')
+
+	testCell(1, 2, '🍊')
+	testCell(2, 2, '🍋')
+	testCell(3, 2, '🍌')
+
+	testCell(1, 3, '🍍')
+	testCell(2, 3, '🍎')
+	testCell(3, 3, '🍏')
+
+	testCell(1, 4, '🍐')
+	testCell(2, 4, '🍑')
+	testCell(3, 4, '🍒')
 }

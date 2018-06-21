@@ -13,8 +13,7 @@ import (
 	"github.com/prizarena/rock-paper-scissors/server-go/rpssecrets"
 	"github.com/prizarena/pair-matching/server-go/pairmodels"
 	"time"
-	"fmt"
-)
+	)
 
 var inlineQueryCommand = bots.NewInlineQueryCommand(
 	"inline-query",
@@ -39,6 +38,25 @@ var inlineQueryCommand = bots.NewInlineQueryCommand(
 // 	return
 // }
 
+var newBoardSizesKeyboard = tgbotapi.NewInlineKeyboardMarkup(
+	[]tgbotapi.InlineKeyboardButton{
+		{Text: "4x3", CallbackData: newBoardCallbackData(4,3)},
+		{Text: "4x4", CallbackData: newBoardCallbackData(4,4)},
+		{Text: "5x4", CallbackData: newBoardCallbackData(5,4)},
+	},
+	[]tgbotapi.InlineKeyboardButton{
+		{Text: "6x5", CallbackData: newBoardCallbackData(6,5)},
+		{Text: "6x6", CallbackData: newBoardCallbackData(6,6)},
+		{Text: "7x6", CallbackData: newBoardCallbackData(7,6)},
+	},
+	[]tgbotapi.InlineKeyboardButton{
+		{Text: "8x6", CallbackData: newBoardCallbackData(8,6)},
+		{Text: "8x7", CallbackData: newBoardCallbackData(8,7)},
+		{Text: "8x8", CallbackData: newBoardCallbackData(8,8)},
+		{Text: "8x9", CallbackData: newBoardCallbackData(8,9)},
+	},
+)
+
 func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryContext) (m bots.MessageFromBot, err error) {
 	return pabot.ProcessInlineQueryTournament(whc, inlineQuery, rpssecrets.RpsPrizarenaGameID, "tournament",
 		func(tournament pamodels.Tournament) (m bots.MessageFromBot, err error) {
@@ -59,7 +77,7 @@ func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryConte
 				newBoard.Created = time.Now()
 
 				// Renders game board to a Telegram message to return as inline result
-				if m, err = renderPairsBoardMessage(t, &tournament, newBoard); err != nil {
+				if m, err = renderPairsBoardMessage(t, &tournament, newBoard, nil); err != nil {
 					panic(err)
 				}
 
@@ -77,7 +95,7 @@ func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryConte
 						ParseMode:             "HTML",
 						DisableWebPagePreview: m.DisableWebPagePreview,
 					},
-					ReplyMarkup: m.Keyboard.(*tgbotapi.InlineKeyboardMarkup),
+					ReplyMarkup: newBoardSizesKeyboard,
 				}
 			}
 
@@ -87,26 +105,10 @@ func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryConte
 					newGameOption("en-US"),
 					// newGameOption("ru-RU"),
 				},
+				CacheTime: 10,
 			})
 			return
 		})
 	return
 }
 
-func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament *pamodels.Tournament, board pairmodels.PairsBoard) (m bots.MessageFromBot, err error) {
-	kbRows := make([][]tgbotapi.InlineKeyboardButton, board.SizeY)
-	for y, row := range board.Rows() {
-		if len(row) != board.SizeX {
-			err = fmt.Errorf("len(board.Rows()[%v]) != board.SizeX: %v != %v", y, len(row), board.SizeX)
-			return
-		}
-		kbRow := make([]tgbotapi.InlineKeyboardButton, board.SizeX)
-		for x, cell := range row {
-			kbRow[x] = tgbotapi.InlineKeyboardButton{Text: string(cell), CallbackData: fmt.Sprintf("open?x=%v&y%v", x+1, y+1)}
-		}
-		kbRows[y] = kbRow
-	}
-	m.Text = "<b>New game</b>\nFind matching pairs as quickly as you can."
-	m.Keyboard = tgbotapi.NewInlineKeyboardMarkup(kbRows...)
-	return
-}

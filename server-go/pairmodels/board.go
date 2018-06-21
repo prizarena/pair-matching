@@ -6,12 +6,13 @@ import (
 	"github.com/prizarena/turn-based"
 	"math/rand"
 	"time"
+	"fmt"
 )
 
 type PairsBoardEntity struct {
-	Cells        string   `datastore:",noindex,omitempty"`
-	SizeX        int      `datastore:",noindex"`
-	SizeY        int      `datastore:",noindex"`
+	Cells string `datastore:",noindex,omitempty"`
+	SizeX int    `datastore:",noindex"`
+	SizeY int    `datastore:",noindex"`
 	turnbased.BoardEntityBase
 }
 
@@ -59,6 +60,26 @@ func (board PairsBoardEntity) Rows() (rows [][]rune) {
 	return
 }
 
+func (board PairsBoardEntity) GetCell(x, y int) rune {
+	if x <= 0 {
+		panic(fmt.Sprintf("x <= 0: %v", x))
+	}
+	if y <= 0 {
+		panic(fmt.Sprintf("y <= 0: %v", y))
+	}
+	x--
+	y--
+	k := y * board.SizeX + x
+	var runeIndex int
+	for _, r := range board.Cells {
+		if runeIndex == k {
+			return r
+		}
+		runeIndex++
+	}
+	return 0
+}
+
 func (board PairsBoardEntity) DrawBoard() string {
 	s := new(bytes.Buffer)
 
@@ -73,76 +94,78 @@ func (board PairsBoardEntity) DrawBoard() string {
 	return s.String()
 }
 
-var emojiSet = []rune {
-	'🚀',
-	'🚁',
-	'🚂',
-	'🚃',
-	'🚄',
-	'🚅',
-	'🚆',
-	'🚇',
-	'🚈',
-	'🚉',
-	'🚊',
-	'🚋',
-	'🚌',
-	'🚍',
-	'🚎',
-	'🚏',
-	'🚐',
-	'🚑',
-	'🚒',
-	'🚓',
-	'🚔',
-	'🚕',
-	'🚖',
-	'🚗',
-	'🚘',
-	'🚙',
-	'🚚',
-	'🚛',
-	'🚜',
-	'🚝',
-	'🚞',
-	'🚟',
-	'🚠',
-	'🚡',
-	'🚢',
-	'🚣',
-	'🚤',
-	'🚥',
-	'🚦',
-	'🚧',
-	'🚨',
-	'🚩',
-	'🚪',
-	'🚫',
-	'🚬',
-	'🚭',
-	'🚮',
-	'🚯',
-	'🚰',
-	'🚱',
-	'🚲',
-	'🚳',
-	'🚴',
-	'🚵',
-	'🚶',
-	'🚷',
-	'🚸',
-	'🚹',
-	'🚺',
-	'🚻',
-	'🚼',
-	'🚽',
-	'🚾',
-	'🚿',
+func emojiSet() []rune {
+	return []rune{
+		'🚀',
+		'🚁',
+		'🚂',
+		'🚃',
+		'🚄',
+		'🚅',
+		'🚆',
+		'🚇',
+		'🚈',
+		'🚉',
+		'🚊',
+		'🚋',
+		'🚌',
+		'🚍',
+		'🚎',
+		'🚏',
+		'🚐',
+		'🚑',
+		'🚒',
+		'🚓',
+		'🚔',
+		'🚕',
+		'🚖',
+		'🚗',
+		'🚘',
+		'🚙',
+		'🚚',
+		'🚛',
+		'🚜',
+		'🚝',
+		'🚞',
+		'🚟',
+		'🚠',
+		'🚡',
+		'🚢',
+		'🚣',
+		'🚤',
+		'🚥',
+		'🚦',
+		'🚧',
+		'🚨',
+		'🚩',
+		'🚪',
+		'🚫',
+		'🚬',
+		'🚭',
+		'🚮',
+		'🚯',
+		'🚰',
+		'🚱',
+		'🚲',
+		'🚳',
+		'🚴',
+		'🚵',
+		'🚶',
+		'🚷',
+		'🚸',
+		'🚹',
+		'🚺',
+		'🚻',
+		'🚼',
+		'🚽',
+		'🚾',
+		'🚿',
+	}
 }
 
-func Shuffle(x, y int) string {
-	available := emojiSet
-	pairsCount := x*y/2
+func Shuffle(width, height int) string {
+	available := emojiSet()
+	pairsCount := width * height / 2
 
 	items := make([]rune, pairsCount*2)
 	for i := 0; i < pairsCount; i++ {
