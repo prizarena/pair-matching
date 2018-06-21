@@ -14,6 +14,7 @@ func RegisterPairCommands(router bots.WebhooksRouter) {
 		startCommand,
 		inlineQueryCommand,
 		openCellCommand,
+		newBoardCommand,
 	})
 
 	pabot.InitPrizarenaBot(router, func(httpClient *http.Client) prizarena_interfaces.ApiClient {

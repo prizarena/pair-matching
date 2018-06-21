@@ -32,32 +32,38 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 
 		userID := whc.AppUserStrID()
 
+		playerEntityHolders := make([]db.EntityHolder, 0, len(board.UserIDs)+1)
+
+		for _, boardUserID := range board.UserIDs {
+			if boardUserID != userID {
+				playerEntityHolders = append(playerEntityHolders, &pairmodels.PairsPlayer{StringID: db.NewStrID(board.ID + ":" + boardUserID)})
+			}
+		}
+
+		if len(playerEntityHolders) > 0 {
+			if err = pairdal.DB.GetMulti(c, playerEntityHolders); err != nil {
+				return
+			}
+		}
+
 		player.ID = board.ID + ":" + userID
 
 		err = pairdal.DB.RunInTransaction(c, func(tc context.Context) (err error) {
 			if err = pairdal.DB.Get(c, &player); err != nil && !db.IsNotFound(err) {
 				return
 			}
-			var changed bool
 			if db.IsNotFound(err) {
 				player.PairsPlayerEntity = &pairmodels.PairsPlayerEntity{
 					Created: time.Now(),
 				}
 			}
-			if player.OpenX == 0 && player.OpenY == 0 {
-				changed = true
-				player.OpenX = x
-				player.OpenY = y
-			} else {
-				changed = true
-				alreadyOpened := board.GetCell(player.OpenX, player.OpenY)
-				currentlyOpened := board.GetCell(x, y)
-				if alreadyOpened == currentlyOpened {
-					player.MatchedCount++
-					player.MatchedItems += string(currentlyOpened)
-				}
-			}
-			if changed {
+			var players []pairmodels.PairsPlayer
+			players = append(players, player)
+
+			var changed bool
+			if changed, err = openCell(board, x, y, player, players); err != nil {
+				return
+			} else if changed {
 				if err = pairdal.DB.Update(c, &player); err != nil && !db.IsNotFound(err) {
 					return
 				}
@@ -86,6 +92,23 @@ func getPoint(v url.Values, p1, p2 string) (v1, v2 int, err error) {
 	if v2, err = strconv.Atoi(v.Get(p2)); err != nil {
 		err = errors.WithMessage(err, "invalid "+p2)
 		return
+	}
+	return
+}
+
+func openCell(board pairmodels.PairsBoard, x, y int, player pairmodels.PairsPlayer, players []pairmodels.PairsPlayer) (changed bool, err error) {
+	if player.OpenX == 0 && player.OpenY == 0 {
+		changed = true
+		player.OpenX = x
+		player.OpenY = y
+	} else {
+		changed = true
+		alreadyOpened := board.GetCell(player.OpenX, player.OpenY)
+		currentlyOpened := board.GetCell(x, y)
+		if alreadyOpened == currentlyOpened {
+			player.MatchedCount++
+			player.MatchedItems += string(currentlyOpened)
+		}
 	}
 	return
 }

@@ -36,6 +36,6 @@ func (PairsPlayer) NewEntity() interface{} {
 	return new(PairsPlayerEntity)
 }
 
-func (player PairsPlayer) SetEntity(entity interface{}) {
+func (player *PairsPlayer) SetEntity(entity interface{}) {
 	player.PairsPlayerEntity = entity.(*PairsPlayerEntity)
 }

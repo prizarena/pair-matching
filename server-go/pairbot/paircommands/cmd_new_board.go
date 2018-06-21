@@ -40,14 +40,12 @@ var newBoardCommand = bots.NewCallbackCommand(
 			var changed bool
 			if db.IsNotFound(err) {
 				changed = true
-				board = pairmodels.PairsBoard{
-					PairsBoardEntity: &pairmodels.PairsBoardEntity{
-						SizeY: widht,
-						SizeX: height,
-						Cells: pairmodels.Shuffle(widht, height),
-						BoardEntityBase: turnbased.BoardEntityBase{
-							UserIDs: []string{},
-						},
+				board.PairsBoardEntity = &pairmodels.PairsBoardEntity{
+					SizeY: widht,
+					SizeX: height,
+					Cells: pairmodels.Shuffle(widht, height),
+					BoardEntityBase: turnbased.BoardEntityBase{
+						UserIDs: []string{},
 					},
 				}
 			} else if slices.IsInStringSlice(userID, board.UserIDs) {

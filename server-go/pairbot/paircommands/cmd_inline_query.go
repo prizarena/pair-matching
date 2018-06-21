@@ -45,6 +45,7 @@ var newBoardSizesKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 		{Text: "5x4", CallbackData: newBoardCallbackData(5,4)},
 	},
 	[]tgbotapi.InlineKeyboardButton{
+		{Text: "6x4", CallbackData: newBoardCallbackData(6,4)},
 		{Text: "6x5", CallbackData: newBoardCallbackData(6,5)},
 		{Text: "6x6", CallbackData: newBoardCallbackData(6,6)},
 		{Text: "7x6", CallbackData: newBoardCallbackData(7,6)},
@@ -54,6 +55,11 @@ var newBoardSizesKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 		{Text: "8x7", CallbackData: newBoardCallbackData(8,7)},
 		{Text: "8x8", CallbackData: newBoardCallbackData(8,8)},
 		{Text: "8x9", CallbackData: newBoardCallbackData(8,9)},
+	},
+	[]tgbotapi.InlineKeyboardButton{
+		{Text: "8x10", CallbackData: newBoardCallbackData(8,6)},
+		{Text: "8x11", CallbackData: newBoardCallbackData(8,7)},
+		{Text: "8x12", CallbackData: newBoardCallbackData(8,8)},
 	},
 )
 

@@ -26,14 +26,14 @@ func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament *pamod
 					text = string(cell)
 					break
 				} else if strings.Contains(player.MatchedItems, string(cell)) {
-					text = "⬜"
+					text = " "
 					break
 				}
 			}
 			if text == "" {
-				text = "⬛"
+				text = "⬜"
 			}
-			kbRow[x] = tgbotapi.InlineKeyboardButton{Text: text, CallbackData: fmt.Sprintf("open?x=%v&y%v", x+1, y+1)}
+			kbRow[x] = tgbotapi.InlineKeyboardButton{Text: text, CallbackData: fmt.Sprintf("open?b=%v&x=%v&y=%v", board.ID, x+1, y+1)}
 		}
 		kbRows[y] = kbRow
 	}

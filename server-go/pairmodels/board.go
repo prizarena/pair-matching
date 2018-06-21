@@ -37,7 +37,7 @@ func (PairsBoard) NewEntity() interface{} {
 	return new(PairsBoardEntity)
 }
 
-func (eh PairsBoard) SetEntity(entity interface{}) {
+func (eh *PairsBoard) SetEntity(entity interface{}) {
 	eh.PairsBoardEntity = entity.(*PairsBoardEntity)
 }
 
