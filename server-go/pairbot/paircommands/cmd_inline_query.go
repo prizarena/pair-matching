@@ -8,12 +8,9 @@ import (
 	"github.com/prizarena/prizarena-public/pamodels"
 	"github.com/strongo/bots-api-telegram"
 	"github.com/strongo/app"
-	"github.com/prizarena/turn-based"
-	"github.com/prizarena/rock-paper-scissors/server-go/rpstrans"
+		"github.com/prizarena/rock-paper-scissors/server-go/rpstrans"
 	"github.com/prizarena/rock-paper-scissors/server-go/rpssecrets"
-	"github.com/prizarena/pair-matching/server-go/pairmodels"
-	"time"
-	)
+			)
 
 var inlineQueryCommand = bots.NewInlineQueryCommand(
 	"inline-query",
@@ -72,20 +69,6 @@ func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryConte
 
 			newGameOption := func(lang string) tgbotapi.InlineQueryResultArticle {
 				t := strongo.NewSingleMapTranslator(strongo.LocalesByCode5[lang], translator)
-				newBoard := pairmodels.PairsBoard{
-					PairsBoardEntity: &pairmodels.PairsBoardEntity{
-						SizeY:           8,
-						SizeX:           8,
-						BoardEntityBase: turnbased.BoardEntityBase{Lang: lang, Round: 1},
-						Cells:           pairmodels.Shuffle(8, 8),
-					},
-				}
-				newBoard.Created = time.Now()
-
-				// Renders game board to a Telegram message to return as inline result
-				if m, err = renderPairsBoardMessage(t, &tournament, newBoard, nil); err != nil {
-					panic(err)
-				}
 
 				articleID := "new_game?l=" + lang
 				if tournament.ID != "" {

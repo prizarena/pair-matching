@@ -16,7 +16,7 @@ import (
 const newBoardCommandCode = "new"
 
 func newBoardCallbackData(width, height int) string {
-	return fmt.Sprintf("new?w=%d&h=%v", width, height)
+	return fmt.Sprintf("new?s=%v", turnbased.NewSize(width, height))
 }
 
 var newBoardCommand = bots.NewCallbackCommand(
@@ -24,8 +24,8 @@ var newBoardCommand = bots.NewCallbackCommand(
 	func(whc bots.WebhookContext, callbackUrl *url.URL) (m bots.MessageFromBot, err error) {
 		c := whc.Context()
 		q := callbackUrl.Query()
-		var widht, height int
-		if widht, height, err = getPoint(q, "w", "h"); err != nil {
+		var size turnbased.Size
+		if size, err = getSize(q, "s"); err != nil {
 			return
 		}
 
@@ -41,9 +41,8 @@ var newBoardCommand = bots.NewCallbackCommand(
 			if db.IsNotFound(err) {
 				changed = true
 				board.PairsBoardEntity = &pairmodels.PairsBoardEntity{
-					SizeY: widht,
-					SizeX: height,
-					Cells: pairmodels.Shuffle(widht, height),
+					Size: size,
+					Cells: pairmodels.Shuffle(size.Width(), size.Height()),
 					BoardEntityBase: turnbased.BoardEntityBase{
 						UserIDs: []string{},
 					},

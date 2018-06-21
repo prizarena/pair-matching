@@ -4,13 +4,13 @@ import (
 	"testing"
 	"strings"
 	"fmt"
+	"github.com/prizarena/turn-based"
 )
 
 func TestPairsBoardEntity_DrawBoard_ascii(t *testing.T) {
 	board := PairsBoardEntity{
 		Cells: "123456789abc",
-		SizeX: 3,
-		SizeY: 4,
+		Size: "C4",
 	}
 	expects := strings.Join([]string{"", "123", "456", "789", "abc", ""}, "\n")
 	if result := board.DrawBoard(); result != expects {
@@ -21,8 +21,7 @@ func TestPairsBoardEntity_DrawBoard_ascii(t *testing.T) {
 func TestPairsBoardEntity_DrawBoard_emoji(t *testing.T) {
 	board := PairsBoardEntity{
 		Cells: "🍇🍈🍉🍊🍋🍌🍍🍎🍏🍐🍑🍒",
-		SizeX: 3,
-		SizeY: 4,
+		Size: "C4",
 	}
 	expects := strings.Join([]string{"", "🍇🍈🍉", "🍊🍋🍌", "🍍🍎🍏", "🍐🍑🍒", ""}, "\n")
 	if result := board.DrawBoard(); result != expects {
@@ -32,8 +31,7 @@ func TestPairsBoardEntity_DrawBoard_emoji(t *testing.T) {
 	testShuffle := func(width, height int) {
 		t.Helper()
 		var board PairsBoardEntity
-		board.SizeX = width
-		board.SizeY = height
+		board.Size = turnbased.NewSize(width, height)
 		board.Cells = Shuffle(width, height)
 		rows := board.Rows()
 		if len(rows) != height {
@@ -90,28 +88,27 @@ func verifyBoard(x, y int, s string) (err error){
 func TestGetCell(t *testing.T) {
 	board := PairsBoardEntity{
 		Cells: "🍇🍈🍉🍊🍋🍌🍍🍎🍏🍐🍑🍒",
-		SizeX: 3,
-		SizeY: 4,
+		Size: "C4",
 	}
-	testCell := func(x, y int, expects rune) {
+	testCell := func(ca turnbased.CellAddress, expects rune) {
 		t.Helper()
-		if v := board.GetCell(x, y); v != expects {
-			t.Errorf("%d:%d expected %v got %v", x, y, string(expects), string(v))
+		if v := board.GetCell(ca); v != expects {
+			t.Errorf("Cell %v expects %v got %v", ca, string(expects), string(v))
 		}
 	}
-	testCell(1, 1, '🍇')
-	testCell(2, 1, '🍈')
-	testCell(3, 1, '🍉')
+	testCell("A1", '🍇')
+	testCell("B1", '🍈')
+	testCell("C1", '🍉')
 
-	testCell(1, 2, '🍊')
-	testCell(2, 2, '🍋')
-	testCell(3, 2, '🍌')
+	testCell("A2", '🍊')
+	testCell("B2", '🍋')
+	testCell("C2", '🍌')
 
-	testCell(1, 3, '🍍')
-	testCell(2, 3, '🍎')
-	testCell(3, 3, '🍏')
+	testCell("A3", '🍍')
+	testCell("B3", '🍎')
+	testCell("C3", '🍏')
 
-	testCell(1, 4, '🍐')
-	testCell(2, 4, '🍑')
-	testCell(3, 4, '🍒')
+	testCell("A4", '🍐')
+	testCell("B4", '🍑')
+	testCell("C4", '🍒')
 }

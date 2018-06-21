@@ -6,13 +6,11 @@ import (
 	"github.com/prizarena/turn-based"
 	"math/rand"
 	"time"
-	"fmt"
 )
 
 type PairsBoardEntity struct {
-	Cells string `datastore:",noindex,omitempty"`
-	SizeX int    `datastore:",noindex"`
-	SizeY int    `datastore:",noindex"`
+	Cells string                `datastore:",noindex,omitempty"`
+	Size  turnbased.Size `datastore:",noindex"`
 	turnbased.BoardEntityBase
 }
 
@@ -43,33 +41,27 @@ func (eh *PairsBoard) SetEntity(entity interface{}) {
 
 func (board PairsBoardEntity) Rows() (rows [][]rune) {
 	var x, y = 0, 0
-	rows = make([][]rune, board.SizeY)
-	if board.SizeX == 0 {
+	width, height := board.Size.WidthHeight()
+	rows = make([][]rune, height)
+	if width == 0 || height == 0 {
 		return
 	}
-	rows[0] = make([]rune, board.SizeX)
+	rows[0] = make([]rune, width)
 	for _, r := range board.Cells {
 		rows[y][x] = r
-		if x++; x == board.SizeX {
+		if x++; x == width {
 			x = 0
-			if y++; y < board.SizeY {
-				rows[y] = make([]rune, board.SizeX)
+			if y++; y < height {
+				rows[y] = make([]rune, width)
 			}
 		}
 	}
 	return
 }
 
-func (board PairsBoardEntity) GetCell(x, y int) rune {
-	if x <= 0 {
-		panic(fmt.Sprintf("x <= 0: %v", x))
-	}
-	if y <= 0 {
-		panic(fmt.Sprintf("y <= 0: %v", y))
-	}
-	x--
-	y--
-	k := y * board.SizeX + x
+func (board PairsBoardEntity) GetCell(ca turnbased.CellAddress) rune {
+	x, y := ca.XY()
+	k := y*board.Size.Width() + x
 	var runeIndex int
 	for _, r := range board.Cells {
 		if runeIndex == k {

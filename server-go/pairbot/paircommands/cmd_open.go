@@ -3,13 +3,14 @@ package paircommands
 import (
 	"github.com/strongo/bots-framework/core"
 	"net/url"
-	"strconv"
-	"github.com/pkg/errors"
 	"github.com/prizarena/pair-matching/server-go/pairmodels"
 	"github.com/prizarena/pair-matching/server-go/pairdal"
 	"context"
 	"github.com/strongo/db"
 	"time"
+	"github.com/prizarena/pair-matching/server-go/pairgame"
+	"github.com/prizarena/turn-based"
+	"fmt"
 )
 
 const openCellCommandCode = "open"
@@ -18,9 +19,9 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 	func(whc bots.WebhookContext, callbackUrl *url.URL) (m bots.MessageFromBot, err error) {
 		c := whc.Context()
 		var player pairmodels.PairsPlayer
-		var x, y int
 		q := callbackUrl.Query()
-		if x, y, err = getPoint(q, "x", "y"); err != nil {
+		var ca turnbased.CellAddress
+		if ca, err = getCellAddress(q, "c"); err != nil {
 			return
 		}
 
@@ -61,7 +62,7 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 			players = append(players, player)
 
 			var changed bool
-			if changed, err = openCell(board, x, y, player, players); err != nil {
+			if changed, err = pairgame.OpenCell(board.PairsBoardEntity, ca, player, players); err != nil {
 				return
 			} else if changed {
 				if err = pairdal.DB.Update(c, &player); err != nil && !db.IsNotFound(err) {
@@ -84,31 +85,23 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 	},
 )
 
-func getPoint(v url.Values, p1, p2 string) (v1, v2 int, err error) {
-	if v1, err = strconv.Atoi(v.Get(p1)); err != nil {
-		err = errors.WithMessage(err, "invalid "+p1)
+func getSize(v url.Values, p string) (size turnbased.Size, err error) {
+	var ca turnbased.CellAddress
+	if ca, err = getCellAddress(v, p); err != nil {
 		return
 	}
-	if v2, err = strconv.Atoi(v.Get(p2)); err != nil {
-		err = errors.WithMessage(err, "invalid "+p2)
-		return
-	}
-	return
+	return turnbased.Size(ca), nil
 }
-
-func openCell(board pairmodels.PairsBoard, x, y int, player pairmodels.PairsPlayer, players []pairmodels.PairsPlayer) (changed bool, err error) {
-	if player.OpenX == 0 && player.OpenY == 0 {
-		changed = true
-		player.OpenX = x
-		player.OpenY = y
-	} else {
-		changed = true
-		alreadyOpened := board.GetCell(player.OpenX, player.OpenY)
-		currentlyOpened := board.GetCell(x, y)
-		if alreadyOpened == currentlyOpened {
-			player.MatchedCount++
-			player.MatchedItems += string(currentlyOpened)
-		}
+func getCellAddress(v url.Values, p string) (ca turnbased.CellAddress, err error) {
+	s := v.Get(p)
+	if len(s) != 2 {
+		err = fmt.Errorf("unexpected length of '%v' parameter: %v", p, len(s))
+		return
 	}
+	if ca[0] < '0' || ca[0] > '9' {
+		err = fmt.Errorf("unexpected Y value of '%v' parameter: %v", p, s)
+		return
+	}
+	ca = turnbased.CellAddress(s)
 	return
 }
