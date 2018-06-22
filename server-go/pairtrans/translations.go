@@ -49,6 +49,10 @@ var TRANS = map[string]map[string]string{
 		"en-US": "Player <b>%v</b> made choice, awaiting another player...",
 		"ru-RU": "Игрок <b>%v</b> сделал свой ход, ожидается ход второго игрока...",
 	},
+	FindFast: {
+		"en-US": "Find matching pairs as fast as you can.",
+		"ru-RU": "Найдите совпадающие пары настолько быстро как можете.",
+	},
 	AskToMakeMove: {
 		"en-US": "Please make your choice.",
 		"ru-RU": "Сделайте ваш выбор.",

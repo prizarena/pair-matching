@@ -27,7 +27,7 @@ func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament *pamod
 	if isCompleted {
 		fmt.Fprintf(text,"\n<b>%v:</b>", t.Translate(pairtrans.Board))
 		text.WriteString(board.DrawBoard())
-		fmt.Fprintf(text, "\n<b>%v</b>", t.Translate(pairtrans.FindFast))
+		fmt.Fprintf(text, "\n<b>%v</b>", t.Translate(pairtrans.ChooseSizeOfNextBoard))
 		m.Keyboard = newBoardSizesKeyboard[lang]
 	} else {
 		width, height := board.Size.WidthHeight()
