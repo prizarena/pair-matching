@@ -29,13 +29,17 @@ var TRANS = map[string]map[string]string{
 		"en-US": "Pair-Matching game",
 		"ru-RU": "Игра: Найди пару",
 	},
-	FindFast: {
-		"en-US": "Find matching pairs as quickly as you can.",
-		"ru-RU": "Найдите совпадающие карточки настолько быстро как сможете.",
+	ChooseSizeOfNextBoard: {
+		"en-US": "Choose size of next board:",
+		"ru-RU": "Выберите размер следующей доски:",
 	},
 	Play: {
 		"en-US": "⚔ Play",
 		"ru-RU": "⚔ Играть",
+	},
+	Board: {
+		"en-US": "Board",
+		"ru-RU": "Доска",
 	},
 	Tournaments: {
 		"en-US": "🏆 Tournaments",

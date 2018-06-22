@@ -18,15 +18,16 @@ func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament *pamod
 	isCompleted := board.IsCompleted(players)
 	m.Format = bots.MessageFormatHTML
 	text := new(bytes.Buffer)
-	fmt.Fprintf(text, `<a href="https://t.me/PairMatchingGameBot">%v</a>\n`, t.Translate(pairtrans.GameCardTitle))
+	fmt.Fprintf(text, `<a href="https://t.me/PairMatchingGameBot">%v</a>`, t.Translate(pairtrans.GameCardTitle))
+	fmt.Fprintln(text, "")
 	fmt.Fprintln(text, t.Translate(pairtrans.FindFast))
 	for i, p := range players {
 		fmt.Fprintf(text, "%d. <b>%v</b>: %v\n", i+1, p.UserName, p.MatchedCount)
 	}
 	if isCompleted {
-		text.WriteString("\n<b>Board:</b>")
+		fmt.Fprintf(text,"\n<b>%v:</b>", t.Translate(pairtrans.Board))
 		text.WriteString(board.DrawBoard())
-		text.WriteString("\n<b>Choose size of next board:</b>")
+		fmt.Fprintf(text, "\n<b>%v</b>", t.Translate(pairtrans.FindFast))
 		m.Keyboard = newBoardSizesKeyboard[lang]
 	} else {
 		width, height := board.Size.WidthHeight()
