@@ -17,8 +17,8 @@ import (
 
 const newBoardCommandCode = "new"
 
-func newBoardCallbackData(width, height int) string {
-	return fmt.Sprintf("new?s=%v", turnbased.NewSize(width, height))
+func newBoardCallbackData(width, height int, lang string) string {
+	return fmt.Sprintf("new?s=%v&l=%v", turnbased.NewSize(width, height), lang)
 }
 
 var newBoardCommand = bots.NewCallbackCommand(
@@ -28,6 +28,10 @@ var newBoardCommand = bots.NewCallbackCommand(
 		q := callbackUrl.Query()
 		var size turnbased.Size
 		if size, err = getSize(q, "s"); err != nil {
+			return
+		}
+
+		if err = whc.SetLocale(q.Get("l")); err != nil {
 			return
 		}
 

@@ -56,38 +56,44 @@ var inlineQueryCommand = bots.NewInlineQueryCommand(
 // 	return
 // }
 
-func sizeButton(width, height int) tgbotapi.InlineKeyboardButton {
-	return tgbotapi.InlineKeyboardButton{
-		Text:         fmt.Sprintf(strconv.Itoa(width) + "x" + strconv.Itoa(height)),
-		CallbackData: newBoardCallbackData(width, height),
-	}
-}
 
-var newBoardSizesKeyboard = tgbotapi.NewInlineKeyboardMarkup(
-	[]tgbotapi.InlineKeyboardButton{
-		sizeButton(4, 2),
-		sizeButton(4, 3),
-		sizeButton(4, 4),
-		sizeButton(5, 4),
-	},
-	[]tgbotapi.InlineKeyboardButton{
-		sizeButton(6, 4),
-		sizeButton(6, 5),
-		sizeButton(6, 6),
-	},
-	[]tgbotapi.InlineKeyboardButton{
-		sizeButton(7, 6),
-		sizeButton(8, 6),
-		sizeButton(8, 7),
-		sizeButton(8, 8),
-	},
-	[]tgbotapi.InlineKeyboardButton{
-		sizeButton(8, 9),
-		sizeButton(8, 10),
-		sizeButton(8, 11),
-		sizeButton(8, 12),
-	},
-)
+func inlineKbMarkup(lang string) *tgbotapi.InlineKeyboardMarkup {
+	sizeButton := func (width, height int) tgbotapi.InlineKeyboardButton {
+		return tgbotapi.InlineKeyboardButton{
+		Text:         fmt.Sprintf(strconv.Itoa(width) + "x" + strconv.Itoa(height)),
+		CallbackData: newBoardCallbackData(width, height, lang),
+	}
+	}
+	return tgbotapi.NewInlineKeyboardMarkup(
+		[]tgbotapi.InlineKeyboardButton{
+			sizeButton(4, 2),
+			sizeButton(4, 3),
+			sizeButton(4, 4),
+			sizeButton(5, 4),
+		},
+		[]tgbotapi.InlineKeyboardButton{
+			sizeButton(6, 4),
+			sizeButton(6, 5),
+			sizeButton(6, 6),
+		},
+		[]tgbotapi.InlineKeyboardButton{
+			sizeButton(7, 6),
+			sizeButton(8, 6),
+			sizeButton(8, 7),
+			sizeButton(8, 8),
+		},
+		[]tgbotapi.InlineKeyboardButton{
+			sizeButton(8, 9),
+			sizeButton(8, 10),
+			sizeButton(8, 11),
+			sizeButton(8, 12),
+		},
+	)
+}
+var newBoardSizesKeyboard = map[string]*tgbotapi.InlineKeyboardMarkup{
+	"en-US": inlineKbMarkup("en-US"),
+	"ru-RU": inlineKbMarkup("ru-RU"),
+}
 
 func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryContext) (m bots.MessageFromBot, err error) {
 	return pabot.ProcessInlineQueryTournament(whc, inlineQuery, rpssecrets.RpsPrizarenaGameID, "tournament",
@@ -99,7 +105,9 @@ func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryConte
 			newGameOption := func() tgbotapi.InlineQueryResultArticle {
 				// t := strongo.NewSingleMapTranslator(strongo.LocalesByCode5[lang], translator)
 
-				articleID := "new_game?l=" + whc.Locale().Code5
+				lang := whc.Locale().Code5
+
+				articleID := "new_game?l=" + lang
 				if tournament.ID != "" {
 					articleID += "&t=" + tournament.ShortTournamentID()
 				}
@@ -115,7 +123,7 @@ func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryConte
 						ParseMode:             "HTML",
 						DisableWebPagePreview: m.DisableWebPagePreview,
 					},
-					ReplyMarkup: newBoardSizesKeyboard,
+					ReplyMarkup: newBoardSizesKeyboard[lang],
 				}
 			}
 

@@ -19,15 +19,19 @@ import (
 
 const openCellCommandCode = "open"
 
-func openCellCallbackData(ca turnbased.CellAddress, boardID string) string {
-	return fmt.Sprintf(openCellCommandCode+"?c=%v&b=%v", ca, boardID)
+func openCellCallbackData(ca turnbased.CellAddress, boardID, lang string) string {
+	return fmt.Sprintf(openCellCommandCode+"?c=%v&b=%v&l=%v", ca, boardID, lang)
 }
 
 var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 	func(whc bots.WebhookContext, callbackUrl *url.URL) (m bots.MessageFromBot, err error) {
 		c := whc.Context()
-		var player pairmodels.PairsPlayer
+
 		q := callbackUrl.Query()
+		if err = whc.SetLocale(q.Get("l")); err != nil {
+			return
+		}
+		var player pairmodels.PairsPlayer
 		var ca turnbased.CellAddress
 		if ca, err = getCellAddress(q, "c"); err != nil {
 			return

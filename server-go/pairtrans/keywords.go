@@ -11,6 +11,7 @@ const (
 	FirstMoveDoneAwaitingSecond = "FirstMoveDoneAwaitingSecond"
 
 	Play = "Play"
+	FindFast = "FindFast"
 	Tournaments = "Tournaments"
 
 	ChallengeFriendCommandText = "ChallengeFriendCommandText"
