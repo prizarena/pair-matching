@@ -8,9 +8,12 @@ import (
 	"github.com/prizarena/prizarena-public/pamodels"
 	"github.com/strongo/bots-api-telegram"
 	"github.com/strongo/app"
-		"github.com/prizarena/rock-paper-scissors/server-go/rpstrans"
+	"github.com/prizarena/rock-paper-scissors/server-go/rpstrans"
 	"github.com/prizarena/rock-paper-scissors/server-go/rpssecrets"
-			)
+	"bytes"
+	"fmt"
+	"strconv"
+)
 
 var inlineQueryCommand = bots.NewInlineQueryCommand(
 	"inline-query",
@@ -20,6 +23,25 @@ var inlineQueryCommand = bots.NewInlineQueryCommand(
 			ID:   tgInlineQuery.GetInlineQueryID(),
 			Text: strings.TrimSpace(tgInlineQuery.TgUpdate().InlineQuery.Query),
 		}
+		words := strings.Split(inlineQuery.Text, " ")
+
+		removeLang := func() {
+			if len(words) == 1 {
+				words = []string{}
+			} else {
+				words = words[1:]
+			}
+		}
+		switch words[0] {
+		case "ru":
+			whc.SetLocale("ru-RU")
+			removeLang()
+		case "en":
+			words = words[1:]
+			removeLang()
+		}
+
+		inlineQuery.Text = strings.Join(words, " ")
 
 		switch {
 		case strings.HasPrefix(inlineQuery.Text, "tournament?id="):
@@ -35,28 +57,36 @@ var inlineQueryCommand = bots.NewInlineQueryCommand(
 // 	return
 // }
 
+func sizeButton(width, height int) tgbotapi.InlineKeyboardButton {
+	return tgbotapi.InlineKeyboardButton{
+		Text:         fmt.Sprintf(strconv.Itoa(width) + "x" + strconv.Itoa(height)),
+		CallbackData: newBoardCallbackData(width, height),
+	}
+}
+
 var newBoardSizesKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 	[]tgbotapi.InlineKeyboardButton{
-		{Text: "4x3", CallbackData: newBoardCallbackData(4,3)},
-		{Text: "4x4", CallbackData: newBoardCallbackData(4,4)},
-		{Text: "5x4", CallbackData: newBoardCallbackData(5,4)},
+		sizeButton(4, 2),
+		sizeButton(4, 3),
+		sizeButton(4, 4),
+		sizeButton(5, 4),
 	},
 	[]tgbotapi.InlineKeyboardButton{
-		{Text: "6x4", CallbackData: newBoardCallbackData(6,4)},
-		{Text: "6x5", CallbackData: newBoardCallbackData(6,5)},
-		{Text: "6x6", CallbackData: newBoardCallbackData(6,6)},
-		{Text: "7x6", CallbackData: newBoardCallbackData(7,6)},
+		sizeButton(6, 4),
+		sizeButton(6, 5),
+		sizeButton(6, 6),
 	},
 	[]tgbotapi.InlineKeyboardButton{
-		{Text: "8x6", CallbackData: newBoardCallbackData(8,6)},
-		{Text: "8x7", CallbackData: newBoardCallbackData(8,7)},
-		{Text: "8x8", CallbackData: newBoardCallbackData(8,8)},
-		{Text: "8x9", CallbackData: newBoardCallbackData(8,9)},
+		sizeButton(7, 6),
+		sizeButton(8, 6),
+		sizeButton(8, 7),
+		sizeButton(8, 8),
 	},
 	[]tgbotapi.InlineKeyboardButton{
-		{Text: "8x10", CallbackData: newBoardCallbackData(8,6)},
-		{Text: "8x11", CallbackData: newBoardCallbackData(8,7)},
-		{Text: "8x12", CallbackData: newBoardCallbackData(8,8)},
+		sizeButton(8, 9),
+		sizeButton(8, 10),
+		sizeButton(8, 11),
+		sizeButton(8, 12),
 	},
 )
 
@@ -74,13 +104,15 @@ func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryConte
 				if tournament.ID != "" {
 					articleID += "&t=" + tournament.ShortTournamentID()
 				}
+				text := new(bytes.Buffer)
+				text.WriteString("<b>Pair matching game</b>\n\nPlease choose board size.")
 				return tgbotapi.InlineQueryResultArticle{
 					ID:          articleID,
 					Type:        "article",
 					Title:       t.Translate(rpstrans.NewGameInlineTitle),
 					Description: t.Translate(rpstrans.NewGameInlineDescription),
 					InputMessageContent: tgbotapi.InputTextMessageContent{
-						Text:                  m.Text,
+						Text:                  text.String(),
 						ParseMode:             "HTML",
 						DisableWebPagePreview: m.DisableWebPagePreview,
 					},
@@ -100,4 +132,3 @@ func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryConte
 		})
 	return
 }
-

@@ -17,53 +17,17 @@ var TRANS = map[string]map[string]string{
 		"en-US": "🤺 Challenge Telegram friend",
 		"ru-RU": "🤺 Новая игра в Telegram",
 	},
-	Option1code: {
-		"en-US": "rock",
-		"ru-RU": "rock",
-	},
-	Option1text: {
-		"en-US": "💎 Rock",
-		"ru-RU": "💎 Камень",
-	},
-	Option1emoji: {
-		"en-US": "💎",
-		"ru-RU": "💎",
-	},
-	Option2code: {
-		"en-US": "paper",
-		"ru-RU": "scissors",
-	},
-	Option2text: {
-		"en-US": "📄 Paper",
-		"ru-RU": "✂ Ножницы",
-	},
-	Option2emoji: {
-		"en-US": "📄",
-		"ru-RU": "✂️",
-	},
-	Option3code: {
-		"en-US": "scissors",
-		"ru-RU": "paper",
-	},
-	Option3emoji: {
-		"en-US": "✂️",
-		"ru-RU": "📄",
-	},
-	Option3text: {
-		"en-US": "✂️ Scissors",
-		"ru-RU": "📄 Бумага",
-	},
 	NewGameInlineTitle: {
-		"en-US": "💎📄✂ New game",
-		"ru-RU": "💎✂📄 Новая игра",
+		"en-US": "New game",
+		"ru-RU": "Новая игра",
 	},
 	NewGameInlineDescription: {
-		"en-US": "Starts new Rock-Paper-Scissors game",
-		"ru-RU": "Создаст новую игру в Камень-Ножницы-Бумагу",
+		"en-US": "Starts new Pair-Matching game",
+		"ru-RU": "Создать новую игру",
 	},
 	GameCardTitle: {
-		"en-US": "<b>💎Rock - 📄Paper - ✂️Scissors</b>",
-		"ru-RU": "<b>💎Камень - ✂️Ножницы - 📄Бумага</b>",
+		"en-US": "Pair-Matching game",
+		"ru-RU": "Игра: Найди пару",
 	},
 	FirstMoveDoneAwaitingSecond: {
 		"en-US": "Player <b>%v</b> made choice, awaiting another player...",

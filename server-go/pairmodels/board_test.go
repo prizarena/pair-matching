@@ -32,7 +32,7 @@ func TestPairsBoardEntity_DrawBoard_emoji(t *testing.T) {
 		t.Helper()
 		var board PairsBoardEntity
 		board.Size = turnbased.NewSize(width, height)
-		board.Cells = Shuffle(width, height)
+		board.Cells = NewCells(width, height)
 		rows := board.Rows()
 		if len(rows) != height {
 			t.Errorf("len(rows) != %v: %v", height, len(rows))
@@ -58,7 +58,7 @@ func TestPairsBoardEntity_DrawBoard_emoji(t *testing.T) {
 func TestShuffle(t *testing.T) {
 
 	test := func(n, x, y int) {
-		s := Shuffle(x, y)
+		s := NewCells(x, y)
 		if err := verifyBoard(x, y, s); err != nil {
 			t.Errorf("Iteration %d shuffling %vx%v: %v", n, x, y, err)
 		}

@@ -6,10 +6,11 @@ import (
 	"github.com/prizarena/turn-based"
 	"math/rand"
 	"time"
+	"strings"
 )
 
 type PairsBoardEntity struct {
-	Cells string                `datastore:",noindex,omitempty"`
+	Cells string         `datastore:",noindex,omitempty"`
 	Size  turnbased.Size `datastore:",noindex"`
 	turnbased.BoardEntityBase
 }
@@ -60,6 +61,9 @@ func (board PairsBoardEntity) Rows() (rows [][]rune) {
 }
 
 func (board PairsBoardEntity) GetCell(ca turnbased.CellAddress) rune {
+	if ca == "" {
+		panic("Cell address is required to get cell value")
+	}
 	x, y := ca.XY()
 	k := y*board.Size.Width() + x
 	var runeIndex int
@@ -84,6 +88,22 @@ func (board PairsBoardEntity) DrawBoard() string {
 		s.WriteRune('\n')
 	}
 	return s.String()
+}
+
+func (board PairsBoardEntity) IsCompleted(players []PairsPlayer) (isCompleted bool) {
+	isCompleted = len(players) > 0
+	if isCompleted {
+		for _, cell := range board.Cells {
+			s := string(cell)
+			for _, p := range players {
+				if !strings.Contains(p.MatchedItems, s) {
+					isCompleted = false
+					break
+				}
+			}
+		}
+	}
+	return
 }
 
 func emojiSet() []rune {
@@ -155,21 +175,23 @@ func emojiSet() []rune {
 	}
 }
 
-func Shuffle(width, height int) string {
+var rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+func NewCells(width, height int) string {
 	available := emojiSet()
 	pairsCount := width * height / 2
 
 	items := make([]rune, pairsCount*2)
 	for i := 0; i < pairsCount; i++ {
-		randIndex := rand.Intn(len(available))
+		randIndex := rnd.Intn(len(available))
 		items[i] = available[randIndex]
 		items[i+pairsCount] = available[randIndex]
 		available = append(available[:randIndex], available[randIndex+1:]...)
 	}
-	shuffle(rand.New(rand.NewSource(time.Now().UnixNano())), len(items), func(i, j int) {
+	shuffle(rnd, len(items), func(i, j int) {
 		items[i], items[j] = items[j], items[i]
 	})
-	s := new(bytes.Buffer)
+	var s bytes.Buffer
 	for _, r := range items {
 		s.WriteRune(r)
 	}

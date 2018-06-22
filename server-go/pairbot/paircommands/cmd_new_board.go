@@ -11,6 +11,8 @@ import (
 	"github.com/strongo/db"
 	"github.com/prizarena/turn-based"
 	"github.com/strongo/slices"
+	"github.com/strongo/log"
+	"time"
 )
 
 const newBoardCommandCode = "new"
@@ -33,23 +35,49 @@ var newBoardCommand = bots.NewCallbackCommand(
 		board.ID = whc.Input().(telegram.TgWebhookCallbackQuery).GetInlineMessageID()
 
 		userID := whc.AppUserStrID()
+		var botAppUser bots.BotAppUser
+		if botAppUser, err = whc.GetAppUser(); err != nil {
+			return
+		}
 		err = pairdal.DB.RunInTransaction(c, func(tc context.Context) (err error) {
 			if err = pairdal.DB.Get(tc, &board); err != nil && !db.IsNotFound(err) {
 				return
 			}
 			var changed bool
-			if db.IsNotFound(err) {
+			if err == nil { // Existing entity
+				if boardUsersCount := len(board.UserIDs); boardUsersCount > 0 {
+					log.Debugf(c, "Will delete %v player entities", boardUsersCount)
+					players := make([]db.EntityHolder, boardUsersCount)
+					for i, userID := range board.UserIDs {
+						players[i] = &pairmodels.PairsPlayer{StringID: db.NewStrID(board.ID + ":" + userID)}
+					}
+					if err = pairdal.DB.DeleteMulti(tc, players); err != nil {
+						return
+					}
+				} else {
+					log.Debugf(c, "Existing board entity")
+				}
+				now := time.Now()
+				if board.Created.Before(now.Add(-time.Second*2)) {
+					board.Created = now
+					board.Size = size
+					board.Cells = pairmodels.NewCells(size.Width(), size.Height())
+					changed = true
+				}
+			} else if db.IsNotFound(err) {
+				log.Debugf(c, "New board entity")
 				changed = true
 				board.PairsBoardEntity = &pairmodels.PairsBoardEntity{
-					Size: size,
-					Cells: pairmodels.Shuffle(size.Width(), size.Height()),
 					BoardEntityBase: turnbased.BoardEntityBase{
-						UserIDs: []string{},
+						Created: time.Now(),
 					},
+					Size:  size,
+					Cells: pairmodels.NewCells(size.Width(), size.Height()),
 				}
-			} else if slices.IsInStringSlice(userID, board.UserIDs) {
+			}
+			if !slices.IsInStringSlice(userID, board.UserIDs) {
 				changed = true
-				board.UserIDs = append(board.UserIDs, userID)
+				board.AddUser(userID, botAppUser.(*pairmodels.UserEntity).FullName())
 			}
 			if changed {
 				if err = pairdal.DB.Update(tc, &board); err != nil {
@@ -57,7 +85,7 @@ var newBoardCommand = bots.NewCallbackCommand(
 				}
 			}
 			return
-		}, db.SingleGroupTransaction)
+		}, db.CrossGroupTransaction)
 		if err != nil {
 			return
 		}
