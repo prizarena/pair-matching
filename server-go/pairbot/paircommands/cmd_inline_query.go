@@ -7,12 +7,11 @@ import (
 	"github.com/prizarena/prizarena-public/pabot"
 	"github.com/prizarena/prizarena-public/pamodels"
 	"github.com/strongo/bots-api-telegram"
-	"github.com/strongo/app"
-	"github.com/prizarena/rock-paper-scissors/server-go/rpstrans"
 	"github.com/prizarena/rock-paper-scissors/server-go/rpssecrets"
 	"bytes"
 	"fmt"
 	"strconv"
+	"github.com/prizarena/pair-matching/server-go/pairtrans"
 )
 
 var inlineQueryCommand = bots.NewInlineQueryCommand(
@@ -93,24 +92,24 @@ var newBoardSizesKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryContext) (m bots.MessageFromBot, err error) {
 	return pabot.ProcessInlineQueryTournament(whc, inlineQuery, rpssecrets.RpsPrizarenaGameID, "tournament",
 		func(tournament pamodels.Tournament) (m bots.MessageFromBot, err error) {
-			c := whc.Context()
+			// c := whc.Context()
 
-			translator := whc.BotAppContext().GetTranslator(c)
+			// translator := whc.BotAppContext().GetTranslator(c)
 
-			newGameOption := func(lang string) tgbotapi.InlineQueryResultArticle {
-				t := strongo.NewSingleMapTranslator(strongo.LocalesByCode5[lang], translator)
+			newGameOption := func() tgbotapi.InlineQueryResultArticle {
+				// t := strongo.NewSingleMapTranslator(strongo.LocalesByCode5[lang], translator)
 
-				articleID := "new_game?l=" + lang
+				articleID := "new_game?l=" + whc.Locale().Code5
 				if tournament.ID != "" {
 					articleID += "&t=" + tournament.ShortTournamentID()
 				}
 				text := new(bytes.Buffer)
-				text.WriteString("<b>Pair matching game</b>\n\nPlease choose board size.")
+				text.WriteString(whc.Translate(pairtrans.NewGameText))
 				return tgbotapi.InlineQueryResultArticle{
 					ID:          articleID,
 					Type:        "article",
-					Title:       t.Translate(rpstrans.NewGameInlineTitle),
-					Description: t.Translate(rpstrans.NewGameInlineDescription),
+					Title:       whc.Translate(pairtrans.NewGameInlineTitle),
+					Description: whc.Translate(pairtrans.NewGameInlineDescription),
 					InputMessageContent: tgbotapi.InputTextMessageContent{
 						Text:                  text.String(),
 						ParseMode:             "HTML",
@@ -123,7 +122,7 @@ func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryConte
 			m.BotMessage = telegram.InlineBotMessage(tgbotapi.InlineConfig{
 				InlineQueryID: inlineQuery.ID,
 				Results: []interface{}{
-					newGameOption("en-US"),
+					newGameOption(),
 					// newGameOption("ru-RU"),
 				},
 				CacheTime: 10,

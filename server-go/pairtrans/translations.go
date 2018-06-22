@@ -18,8 +18,8 @@ var TRANS = map[string]map[string]string{
 		"ru-RU": "🤺 Новая игра в Telegram",
 	},
 	NewGameInlineTitle: {
-		"en-US": "New game",
-		"ru-RU": "Новая игра",
+		"en-US": "🀄 Pair matching - new game",
+		"ru-RU": "🀄 Найди пары - новая игра",
 	},
 	NewGameInlineDescription: {
 		"en-US": "Starts new Pair-Matching game",
@@ -28,6 +28,14 @@ var TRANS = map[string]map[string]string{
 	GameCardTitle: {
 		"en-US": "Pair-Matching game",
 		"ru-RU": "Игра: Найди пару",
+	},
+	Play: {
+		"en-US": "⚔ Play",
+		"ru-RU": "⚔ Играть",
+	},
+	Tournaments: {
+		"en-US": "🏆 Tournaments",
+		"ru-RU": "🏆 Турниры",
 	},
 	FirstMoveDoneAwaitingSecond: {
 		"en-US": "Player <b>%v</b> made choice, awaiting another player...",
@@ -58,12 +66,12 @@ var TRANS = map[string]map[string]string{
 </pre>`,
 	},
 	NewGameText: {
-		"en-US": `<b>Rock-Paper-Scissors</b>
-%v
-<b>Sponsor:</b> <a href="https://t.me/DebtsTrackerBot?start=ref-playRockPaperScissorsBot">@DebtusBot</a>  - track your debts`,
-		"ru-RU": `<b>Камень-Ножницы-Бумага</b>
-%v
-<b>Спонсор:</b> <a href="https://t.me/DebtsTrackerRuBot?start=ref-playRockPaperScissorsBot">Бот для учёта долгов</a>`,
+		"en-US": `🀄 <b>Pair matching game</b>
+
+Please choose board size.`,
+		"ru-RU": `🀄 Игра: <b>Найди пары</b>
+
+Выберите размер доски.`,
 	},
 	MT_WELCOME: {
 		"en-US": ``,
