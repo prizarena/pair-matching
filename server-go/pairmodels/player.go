@@ -9,14 +9,14 @@ import (
 )
 
 type PairsPlayerEntity struct {
-	Created      time.Time             `datastore:"dc,noindex,omitempty"`
-	LastMove     time.Time             `datastore:"dl,noindex,omitempty"`
-	TurnsCount   int                   `datastore:"tc,noindex,omitempty"`
-	UserName     string                `datastore:"un,noindex,omitempty"`
-	MatchedCount int                   `datastore:"mc,noindex,omitempty"`
-	MatchedItems string                `datastore:"mi,noindex,omitempty"`
-	Open1        turnbased.CellAddress `datastore:"o1,noindex,omitempty"`
-	Open2        turnbased.CellAddress `datastore:"o2,noindex,omitempty"`
+	PlayerCreated time.Time             `datastore:"pdc,noindex,omitempty"`
+	LastMove      time.Time             `datastore:"pdl,noindex,omitempty"`
+	TurnsCount    int                   `datastore:"ptc,noindex,omitempty"`
+	UserName      string                `datastore:"pun,noindex,omitempty"`
+	MatchedCount  int                   `datastore:"pmc,noindex,omitempty"`
+	MatchedItems  string                `datastore:"pmi,noindex,omitempty"`
+	Open1         turnbased.CellAddress `datastore:"po1,noindex,omitempty"`
+	Open2         turnbased.CellAddress `datastore:"po2,noindex,omitempty"`
 }
 
 const PairsPlayerKind = "P"
@@ -26,11 +26,17 @@ type PairsPlayer struct {
 	*PairsPlayerEntity
 }
 
+const PlayerIDSeparator = ":"
+
+func NewPlayerID(boardID, userID string) string {
+	return boardID + PlayerIDSeparator + userID
+}
+
 func (player PairsPlayer) UserID() string {
 	if player.ID == "" {
 		return ""
 	}
-	return player.ID[strings.Index(player.ID, ":")+1:]
+	return player.ID[strings.Index(player.ID, PlayerIDSeparator)+1:]
 }
 
 var _ db.EntityHolder = (*PairsPlayer)(nil)

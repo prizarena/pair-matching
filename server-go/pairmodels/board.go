@@ -7,12 +7,15 @@ import (
 	"math/rand"
 	"time"
 	"strings"
+	"fmt"
 )
 
 type PairsBoardEntity struct {
-	Cells string         `datastore:",noindex,omitempty"`
-	Size  turnbased.Size `datastore:",noindex"`
 	turnbased.BoardEntityBase
+	PairsPlayerEntity
+	Cells      string         `datastore:",noindex,omitempty"`
+	Size       turnbased.Size `datastore:",noindex"`
+	MaxPlayers int            `datastore:",noindex,omitempty"` // E.g. 1 - single player, 0 - no limits
 }
 
 const PairBoardKind = "B"
@@ -43,10 +46,13 @@ func (eh *PairsBoard) SetEntity(entity interface{}) {
 func (board PairsBoardEntity) Rows() (rows [][]rune) {
 	var x, y = 0, 0
 	width, height := board.Size.WidthHeight()
-	rows = make([][]rune, height)
+	if width <= 0 || height <= 0 {
+		panic(fmt.Sprintf("Both width & height should be > 0, got: width=%v, height=%v", width, height))
+	}
 	if width == 0 || height == 0 {
 		return
 	}
+	rows = make([][]rune, height)
 	rows[0] = make([]rune, width)
 	for _, r := range board.Cells {
 		rows[y][x] = r

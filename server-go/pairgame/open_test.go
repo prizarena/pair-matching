@@ -64,7 +64,7 @@ func TestOpenCell(t *testing.T) {
 				},
 			},
 		},
-		{
+		{ // Same player, different cell
 			player: p1, ca: "A3",
 			expected: expected{
 				changed: true,
@@ -74,7 +74,7 @@ func TestOpenCell(t *testing.T) {
 				},
 			},
 		},
-		{
+		{ // Same player, next 1st cell
 			player: p1, ca: "B2",
 			expected: expected{
 				changed: true,
@@ -84,7 +84,7 @@ func TestOpenCell(t *testing.T) {
 				},
 			},
 		},
-		{
+		{ // Same player, 2nd and matching cell
 			player: p1, ca: "C2",
 			expected: expected{
 				changed: true,
@@ -94,17 +94,30 @@ func TestOpenCell(t *testing.T) {
 				},
 			},
 		},
-		{
-			player: p1, ca: "D3",
+		{ // Same player, another 1st cell
+			player: p1, ca: "A1",
 			expected: expected{
 				changed: true,
 				players: map[string]expectedPlayer{
-					"p1": {Open1: "D3", Open2: "", MatchedItems: "6", MatchedCount: 1},
+					"p1": {Open1: "A1", Open2: "", MatchedItems: "6", MatchedCount: 1},
 					"p2": {},
 				},
 			},
 		},
+		{ // Another player, cell is matching to previously opened by 1st player
+			player: p2, ca: "D3",
+			expected: expected{
+				changed: true,
+				players: map[string]expectedPlayer{
+					"p1": {Open1: "A1", MatchedItems: "6", MatchedCount: 1},
+					"p2": {Open1: "D3", MatchedItems: "1", MatchedCount: 1},
+				},
+			},
+		},
 	} {
+		if i == 3 {
+			t.Log(i+1)
+		}
 		if changed, err := OpenCell(&board, step.ca, step.player, players); err != nil {
 			t.Fatalf("Error at step #%v: %v", i, err)
 		} else {

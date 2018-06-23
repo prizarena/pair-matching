@@ -13,7 +13,7 @@ import (
 	"github.com/prizarena/pair-matching/server-go/pairtrans"
 )
 
-func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament *pamodels.Tournament, board pairmodels.PairsBoard, players []pairmodels.PairsPlayer) (m bots.MessageFromBot, err error) {
+func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament *pamodels.Tournament, board pairmodels.PairsBoard, userID string, players []pairmodels.PairsPlayer) (m bots.MessageFromBot, err error) {
 	lang := t.Locale().Code5
 	isCompleted := board.IsCompleted(players)
 	m.Format = bots.MessageFormatHTML
@@ -57,7 +57,7 @@ func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament *pamod
 				if text == "" {
 					text = closed
 				}
-				kbRow[x] = tgbotapi.InlineKeyboardButton{Text: text, CallbackData: openCellCallbackData(turnbased.NewCellAddress(x, y), board.ID, lang)}
+				kbRow[x] = tgbotapi.InlineKeyboardButton{Text: text, CallbackData: openCellCallbackData(turnbased.NewCellAddress(x, y), len(board.UserIDs), board.ID, userID, lang)}
 			}
 			kbRows[y] = kbRow
 		}

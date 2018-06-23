@@ -10,8 +10,7 @@ import (
 	"context"
 	"github.com/strongo/db"
 	"github.com/prizarena/turn-based"
-	"github.com/strongo/slices"
-	"github.com/strongo/log"
+		"github.com/strongo/log"
 	"time"
 )
 
@@ -39,10 +38,10 @@ var newBoardCommand = bots.NewCallbackCommand(
 		board.ID = whc.Input().(telegram.TgWebhookCallbackQuery).GetInlineMessageID()
 
 		userID := whc.AppUserStrID()
-		var botAppUser bots.BotAppUser
-		if botAppUser, err = whc.GetAppUser(); err != nil {
-			return
-		}
+		// var botAppUser bots.BotAppUser
+		// if botAppUser, err = whc.GetAppUser(); err != nil {
+		// 	return
+		// }
 		err = pairdal.DB.RunInTransaction(c, func(tc context.Context) (err error) {
 			if err = pairdal.DB.Get(tc, &board); err != nil && !db.IsNotFound(err) {
 				return
@@ -74,15 +73,16 @@ var newBoardCommand = bots.NewCallbackCommand(
 				board.PairsBoardEntity = &pairmodels.PairsBoardEntity{
 					BoardEntityBase: turnbased.BoardEntityBase{
 						Created: time.Now(),
+						CreatorUserID: userID,
 					},
 					Size:  size,
 					Cells: pairmodels.NewCells(size.Width(), size.Height()),
 				}
 			}
-			if !slices.IsInStringSlice(userID, board.UserIDs) {
-				changed = true
-				board.AddUser(userID, botAppUser.(*pairmodels.UserEntity).FullName())
-			}
+			// if !slices.IsInStringSlice(userID, board.UserIDs) {
+			// 	changed = true
+			// 	board.AddUser(userID, botAppUser.(*pairmodels.UserEntity).FullName())
+			// }
 			if changed {
 				if err = pairdal.DB.Update(tc, &board); err != nil {
 					return
@@ -94,7 +94,7 @@ var newBoardCommand = bots.NewCallbackCommand(
 			return
 		}
 		// TODO: check and notify if another user already selected different board size.
-		m, err = renderPairsBoardMessage(whc, nil, board, nil)
+		m, err = renderPairsBoardMessage(whc, nil, board, userID,nil)
 		return
 	},
 )
