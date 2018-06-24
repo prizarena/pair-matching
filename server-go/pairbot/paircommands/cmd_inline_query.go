@@ -7,12 +7,11 @@ import (
 	"github.com/prizarena/prizarena-public/pabot"
 	"github.com/prizarena/prizarena-public/pamodels"
 	"github.com/strongo/bots-api-telegram"
-	"github.com/strongo/app"
-	"github.com/prizarena/turn-based"
-	"github.com/prizarena/rock-paper-scissors/server-go/rpstrans"
-	"github.com/prizarena/pair-matching/server-go/pairmodels"
-	"time"
-	"github.com/prizarena/pair-matching/server-go/pairsecrets"
+	"github.com/prizarena/rock-paper-scissors/server-go/rpssecrets"
+	"bytes"
+	"fmt"
+	"strconv"
+	"github.com/prizarena/pair-matching/server-go/pairtrans"
 )
 
 var inlineQueryCommand = bots.NewInlineQueryCommand(
@@ -23,6 +22,25 @@ var inlineQueryCommand = bots.NewInlineQueryCommand(
 			ID:   tgInlineQuery.GetInlineQueryID(),
 			Text: strings.TrimSpace(tgInlineQuery.TgUpdate().InlineQuery.Query),
 		}
+		words := strings.Split(inlineQuery.Text, " ")
+
+		removeLang := func() {
+			if len(words) == 1 {
+				words = []string{}
+			} else {
+				words = words[1:]
+			}
+		}
+		switch words[0] {
+		case "ru":
+			whc.SetLocale("ru-RU")
+			removeLang()
+		case "en":
+			words = words[1:]
+			removeLang()
+		}
+
+		inlineQuery.Text = strings.Join(words, " ")
 
 		switch {
 		case strings.HasPrefix(inlineQuery.Text, "tournament?id="):
@@ -38,77 +56,81 @@ var inlineQueryCommand = bots.NewInlineQueryCommand(
 // 	return
 // }
 
-var newBoardSizesKeyboard = tgbotapi.NewInlineKeyboardMarkup(
-	[]tgbotapi.InlineKeyboardButton{
-		{Text: "4x3", CallbackData: newBoardCallbackData(4,3)},
-		{Text: "4x4", CallbackData: newBoardCallbackData(4,4)},
-		{Text: "5x4", CallbackData: newBoardCallbackData(5,4)},
-	},
-	[]tgbotapi.InlineKeyboardButton{
-		{Text: "6x4", CallbackData: newBoardCallbackData(6,4)},
-		{Text: "6x5", CallbackData: newBoardCallbackData(6,5)},
-		{Text: "6x6", CallbackData: newBoardCallbackData(6,6)},
-		{Text: "7x6", CallbackData: newBoardCallbackData(7,6)},
-	},
-	[]tgbotapi.InlineKeyboardButton{
-		{Text: "8x6", CallbackData: newBoardCallbackData(8,6)},
-		{Text: "8x7", CallbackData: newBoardCallbackData(8,7)},
-		{Text: "8x8", CallbackData: newBoardCallbackData(8,8)},
-		{Text: "8x9", CallbackData: newBoardCallbackData(8,9)},
-	},
-	[]tgbotapi.InlineKeyboardButton{
-		{Text: "8x10", CallbackData: newBoardCallbackData(8,6)},
-		{Text: "8x11", CallbackData: newBoardCallbackData(8,7)},
-		{Text: "8x12", CallbackData: newBoardCallbackData(8,8)},
-	},
-)
+
+func inlineKbMarkup(lang string) *tgbotapi.InlineKeyboardMarkup {
+	sizeButton := func (width, height int) tgbotapi.InlineKeyboardButton {
+		return tgbotapi.InlineKeyboardButton{
+		Text:         fmt.Sprintf(strconv.Itoa(width) + "x" + strconv.Itoa(height)),
+		CallbackData: newBoardCallbackData(width, height, lang),
+	}
+	}
+	return tgbotapi.NewInlineKeyboardMarkup(
+		[]tgbotapi.InlineKeyboardButton{
+			sizeButton(4, 2),
+			sizeButton(4, 3),
+			sizeButton(4, 4),
+			sizeButton(5, 4),
+		},
+		[]tgbotapi.InlineKeyboardButton{
+			sizeButton(6, 4),
+			sizeButton(6, 5),
+			sizeButton(6, 6),
+		},
+		[]tgbotapi.InlineKeyboardButton{
+			sizeButton(7, 6),
+			sizeButton(8, 6),
+			sizeButton(8, 7),
+			sizeButton(8, 8),
+		},
+		[]tgbotapi.InlineKeyboardButton{
+			sizeButton(8, 9),
+			sizeButton(8, 10),
+			sizeButton(8, 11),
+			sizeButton(8, 12),
+		},
+	)
+}
+var newBoardSizesKeyboard = map[string]*tgbotapi.InlineKeyboardMarkup{
+	"en-US": inlineKbMarkup("en-US"),
+	"ru-RU": inlineKbMarkup("ru-RU"),
+}
 
 func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryContext) (m bots.MessageFromBot, err error) {
-	return pabot.ProcessInlineQueryTournament(whc, inlineQuery, pairsecrets.PrizarenaGameID, "tournament",
+	return pabot.ProcessInlineQueryTournament(whc, inlineQuery, rpssecrets.RpsPrizarenaGameID, "tournament",
 		func(tournament pamodels.Tournament) (m bots.MessageFromBot, err error) {
-			c := whc.Context()
+			// c := whc.Context()
 
-			translator := whc.BotAppContext().GetTranslator(c)
+			// translator := whc.BotAppContext().GetTranslator(c)
 
-			newGameOption := func(lang string) tgbotapi.InlineQueryResultArticle {
-				t := strongo.NewSingleMapTranslator(strongo.LocalesByCode5[lang], translator)
-				newBoard := pairmodels.PairsBoard{
-					PairsBoardEntity: &pairmodels.PairsBoardEntity{
-						SizeY:           8,
-						SizeX:           8,
-						BoardEntityBase: turnbased.BoardEntityBase{Lang: lang, Round: 1},
-						Cells:           pairmodels.Shuffle(8, 8),
-					},
-				}
-				newBoard.Created = time.Now()
+			newGameOption := func() tgbotapi.InlineQueryResultArticle {
+				// t := strongo.NewSingleMapTranslator(strongo.LocalesByCode5[lang], translator)
 
-				// Renders game board to a Telegram message to return as inline result
-				if m, err = renderPairsBoardMessage(t, &tournament, newBoard, nil); err != nil {
-					panic(err)
-				}
+				lang := whc.Locale().Code5
 
 				articleID := "new_game?l=" + lang
 				if tournament.ID != "" {
 					articleID += "&t=" + tournament.ShortTournamentID()
 				}
+				text := new(bytes.Buffer)
+				text.WriteString(whc.Translate(pairtrans.NewGameText))
 				return tgbotapi.InlineQueryResultArticle{
 					ID:          articleID,
 					Type:        "article",
-					Title:       t.Translate(rpstrans.NewGameInlineTitle),
-					Description: t.Translate(rpstrans.NewGameInlineDescription),
+					Title:       whc.Translate(pairtrans.NewGameInlineTitle),
+					Description: whc.Translate(pairtrans.NewGameInlineDescription),
 					InputMessageContent: tgbotapi.InputTextMessageContent{
-						Text:                  m.Text,
+						Text:                  text.String(),
 						ParseMode:             "HTML",
 						DisableWebPagePreview: m.DisableWebPagePreview,
 					},
-					ReplyMarkup: newBoardSizesKeyboard,
+					ReplyMarkup: newBoardSizesKeyboard[lang],
 				}
 			}
 
 			m.BotMessage = telegram.InlineBotMessage(tgbotapi.InlineConfig{
 				InlineQueryID: inlineQuery.ID,
 				Results: []interface{}{
-					newGameOption("en-US"),
+					newGameOption(),
 					// newGameOption("ru-RU"),
 				},
 				CacheTime: 10,
@@ -117,4 +139,3 @@ func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryConte
 		})
 	return
 }
-

@@ -17,57 +17,41 @@ var TRANS = map[string]map[string]string{
 		"en-US": "🤺 Challenge Telegram friend",
 		"ru-RU": "🤺 Новая игра в Telegram",
 	},
-	Option1code: {
-		"en-US": "rock",
-		"ru-RU": "rock",
-	},
-	Option1text: {
-		"en-US": "💎 Rock",
-		"ru-RU": "💎 Камень",
-	},
-	Option1emoji: {
-		"en-US": "💎",
-		"ru-RU": "💎",
-	},
-	Option2code: {
-		"en-US": "paper",
-		"ru-RU": "scissors",
-	},
-	Option2text: {
-		"en-US": "📄 Paper",
-		"ru-RU": "✂ Ножницы",
-	},
-	Option2emoji: {
-		"en-US": "📄",
-		"ru-RU": "✂️",
-	},
-	Option3code: {
-		"en-US": "scissors",
-		"ru-RU": "paper",
-	},
-	Option3emoji: {
-		"en-US": "✂️",
-		"ru-RU": "📄",
-	},
-	Option3text: {
-		"en-US": "✂️ Scissors",
-		"ru-RU": "📄 Бумага",
-	},
 	NewGameInlineTitle: {
-		"en-US": "💎📄✂ New game",
-		"ru-RU": "💎✂📄 Новая игра",
+		"en-US": "🀄 Pair matching - new game",
+		"ru-RU": "🀄 Найди пары - новая игра",
 	},
 	NewGameInlineDescription: {
-		"en-US": "Starts new Rock-Paper-Scissors game",
-		"ru-RU": "Создаст новую игру в Камень-Ножницы-Бумагу",
+		"en-US": "Starts new Pair-Matching game",
+		"ru-RU": "Создать новую игру",
 	},
 	GameCardTitle: {
-		"en-US": "<b>💎Rock - 📄Paper - ✂️Scissors</b>",
-		"ru-RU": "<b>💎Камень - ✂️Ножницы - 📄Бумага</b>",
+		"en-US": "Pair-Matching game",
+		"ru-RU": "Игра: Найди пару",
+	},
+	ChooseSizeOfNextBoard: {
+		"en-US": "Choose size of next board:",
+		"ru-RU": "Выберите размер следующей доски:",
+	},
+	Play: {
+		"en-US": "⚔ Play",
+		"ru-RU": "⚔ Играть",
+	},
+	Board: {
+		"en-US": "Board",
+		"ru-RU": "Доска",
+	},
+	Tournaments: {
+		"en-US": "🏆 Tournaments",
+		"ru-RU": "🏆 Турниры",
 	},
 	FirstMoveDoneAwaitingSecond: {
 		"en-US": "Player <b>%v</b> made choice, awaiting another player...",
 		"ru-RU": "Игрок <b>%v</b> сделал свой ход, ожидается ход второго игрока...",
+	},
+	FindFast: {
+		"en-US": "Find matching pairs as fast as you can.",
+		"ru-RU": "Найдите совпадающие пары настолько быстро как можете.",
 	},
 	AskToMakeMove: {
 		"en-US": "Please make your choice.",
@@ -94,12 +78,12 @@ var TRANS = map[string]map[string]string{
 </pre>`,
 	},
 	NewGameText: {
-		"en-US": `<b>Rock-Paper-Scissors</b>
-%v
-<b>Sponsor:</b> <a href="https://t.me/DebtsTrackerBot?start=ref-playRockPaperScissorsBot">@DebtusBot</a>  - track your debts`,
-		"ru-RU": `<b>Камень-Ножницы-Бумага</b>
-%v
-<b>Спонсор:</b> <a href="https://t.me/DebtsTrackerRuBot?start=ref-playRockPaperScissorsBot">Бот для учёта долгов</a>`,
+		"en-US": `🀄 <b>Pair matching game</b>
+
+Please choose board size.`,
+		"ru-RU": `🀄 Игра: <b>Найди пары</b>
+
+Выберите размер доски.`,
 	},
 	MT_WELCOME: {
 		"en-US": ``,

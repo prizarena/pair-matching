@@ -10,6 +10,12 @@ const (
 	AskToMakeNextMove = "AskToMakeNextMove"
 	FirstMoveDoneAwaitingSecond = "FirstMoveDoneAwaitingSecond"
 
+	Board = "Board"
+	Play = "Play"
+	FindFast = "FindFast"
+	ChooseSizeOfNextBoard = "ChooseSizeOfNextBoard"
+	Tournaments = "Tournaments"
+
 	ChallengeFriendCommandText = "ChallengeFriendCommandText"
 
 	Option1text = "Option1text"

@@ -7,13 +7,15 @@ import (
 	"math/rand"
 	"time"
 	"fmt"
+	"strings"
 )
 
 type PairsBoardEntity struct {
-	Cells string `datastore:",noindex,omitempty"`
-	SizeX int    `datastore:",noindex"`
-	SizeY int    `datastore:",noindex"`
 	turnbased.BoardEntityBase
+	PairsPlayerEntity
+	Cells      string         `datastore:",noindex,omitempty"`
+	Size       turnbased.Size `datastore:",noindex"`
+	MaxPlayers int            `datastore:",noindex,omitempty"` // E.g. 1 - single player, 0 - no limits
 }
 
 const PairBoardKind = "B"
@@ -43,33 +45,33 @@ func (eh *PairsBoard) SetEntity(entity interface{}) {
 
 func (board PairsBoardEntity) Rows() (rows [][]rune) {
 	var x, y = 0, 0
-	rows = make([][]rune, board.SizeY)
-	if board.SizeX == 0 {
+	width, height := board.Size.WidthHeight()
+	if width <= 0 || height <= 0 {
+		panic(fmt.Sprintf("Both width & height should be > 0, got: width=%v, height=%v", width, height))
+	}
+	if width == 0 || height == 0 {
 		return
 	}
-	rows[0] = make([]rune, board.SizeX)
+	rows = make([][]rune, height)
+	rows[0] = make([]rune, width)
 	for _, r := range board.Cells {
 		rows[y][x] = r
-		if x++; x == board.SizeX {
+		if x++; x == width {
 			x = 0
-			if y++; y < board.SizeY {
-				rows[y] = make([]rune, board.SizeX)
+			if y++; y < height {
+				rows[y] = make([]rune, width)
 			}
 		}
 	}
 	return
 }
 
-func (board PairsBoardEntity) GetCell(x, y int) rune {
-	if x <= 0 {
-		panic(fmt.Sprintf("x <= 0: %v", x))
+func (board PairsBoardEntity) GetCell(ca turnbased.CellAddress) rune {
+	if ca == "" {
+		panic("Cell address is required to get cell value")
 	}
-	if y <= 0 {
-		panic(fmt.Sprintf("y <= 0: %v", y))
-	}
-	x--
-	y--
-	k := y * board.SizeX + x
+	x, y := ca.XY()
+	k := y*board.Size.Width() + x
 	var runeIndex int
 	for _, r := range board.Cells {
 		if runeIndex == k {
@@ -92,6 +94,19 @@ func (board PairsBoardEntity) DrawBoard() string {
 		s.WriteRune('\n')
 	}
 	return s.String()
+}
+
+func (board PairsBoardEntity) IsCompleted(players []PairsPlayer) (isCompleted bool) {
+	if len(players) == 0 {
+		return false
+	}
+	s := board.Cells
+	for _, p := range players {
+		for _, tile := range p.MatchedItems {
+			s = strings.Replace(s, string(tile), "", 2)
+		}
+	}
+	return s == ""
 }
 
 func emojiSet() []rune {
@@ -163,21 +178,23 @@ func emojiSet() []rune {
 	}
 }
 
-func Shuffle(width, height int) string {
+var rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+func NewCells(width, height int) string {
 	available := emojiSet()
 	pairsCount := width * height / 2
 
 	items := make([]rune, pairsCount*2)
 	for i := 0; i < pairsCount; i++ {
-		randIndex := rand.Intn(len(available))
+		randIndex := rnd.Intn(len(available))
 		items[i] = available[randIndex]
 		items[i+pairsCount] = available[randIndex]
 		available = append(available[:randIndex], available[randIndex+1:]...)
 	}
-	shuffle(rand.New(rand.NewSource(time.Now().UnixNano())), len(items), func(i, j int) {
+	shuffle(rnd, len(items), func(i, j int) {
 		items[i], items[j] = items[j], items[i]
 	})
-	s := new(bytes.Buffer)
+	var s bytes.Buffer
 	for _, r := range items {
 		s.WriteRune(r)
 	}
