@@ -10,6 +10,7 @@ import (
 
 var (
 	ErrAlreadyMatched   = errors.New("already matched")
+	ErrAlreadyOpen = errors.New("already open")
 	ErrBoardIsCompleted = errors.New("board is already completed")
 )
 
@@ -87,6 +88,10 @@ func OpenCell(
 		}
 
 		match := func(openN int, openField turnbased.CellAddress) (matched bool) {
+			if p.ID == player.ID && (p.Open1 == ca || p.Open2 == ca) {
+				err = ErrAlreadyOpen
+				return
+			}
 			if matched = board.GetCell(openField) == currentlyOpened; matched {
 				playerChanged(p)
 			 	// if p.ID == player.ID {

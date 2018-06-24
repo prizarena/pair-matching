@@ -153,7 +153,7 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 
 		var players []pairmodels.PairsPlayer
 
-		var isAlreadyMatched bool
+		var isAlreadyMatched, isAlreadyOpen bool
 		// =[ Start of transaction ]=
 		txOptions := db.CrossGroupTransaction
 		if playersCount > 1 {
@@ -261,6 +261,9 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 			if changed, _, err = pairgame.OpenCell(board.PairsBoardEntity, ca, player, players); err != nil {
 				// ================================================================================================
 				switch err {
+				case pairgame.ErrAlreadyOpen:
+					isAlreadyOpen = true
+					err = nil
 				case pairgame.ErrAlreadyMatched:
 					isAlreadyMatched = true
 					err = nil
@@ -313,6 +316,16 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 		if isAlreadyMatched {
 			m.BotMessage = telegram.CallbackAnswer(tgbotapi.AnswerCallbackQueryConfig{
 				Text:      "This cell is already matched",
+				CacheTime: 10,
+			})
+			if _, err = whc.Responder().SendMessage(c, m, bots.BotAPISendMessageOverHTTPS); err != nil {
+				log.Errorf(c, "Failed to send already matched alert: %v", err)
+				err = nil
+			}
+		}
+		if isAlreadyOpen {
+			m.BotMessage = telegram.CallbackAnswer(tgbotapi.AnswerCallbackQueryConfig{
+				Text:      "This cell is already open by you",
 				CacheTime: 10,
 			})
 			if _, err = whc.Responder().SendMessage(c, m, bots.BotAPISendMessageOverHTTPS); err != nil {
