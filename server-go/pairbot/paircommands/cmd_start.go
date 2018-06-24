@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"bytes"
 	"github.com/strongo/log"
+	"github.com/prizarena/prizarena-public/pabot"
+	"github.com/prizarena/pair-matching/server-go/pairsecrets"
 )
 
 const startCommandCommandCode = "start"
@@ -65,6 +67,9 @@ func startCallbackAction(whc bots.WebhookContext, callbackUrl *url.URL) (m bots.
 }
 
 func startAction(whc bots.WebhookContext) (m bots.MessageFromBot, err error) {
+	if m, err = pabot.OnStartIfTournamentLink(whc, pairsecrets.PrizarenaGameID); m.Text != "" || err != nil {
+		return
+	}
 	text := new(bytes.Buffer)
 	fmt.Fprintf(text, "🀄 <b>%v</b>\n", whc.Translate(pairtrans.GameCardTitle))
 	m.Text = text.String()

@@ -7,11 +7,11 @@ import (
 	"github.com/prizarena/prizarena-public/pabot"
 	"github.com/prizarena/prizarena-public/pamodels"
 	"github.com/strongo/bots-api-telegram"
-	"github.com/prizarena/rock-paper-scissors/server-go/rpssecrets"
 	"bytes"
 	"fmt"
 	"strconv"
 	"github.com/prizarena/pair-matching/server-go/pairtrans"
+	"github.com/prizarena/pair-matching/server-go/pairsecrets"
 )
 
 var inlineQueryCommand = bots.NewInlineQueryCommand(
@@ -56,13 +56,12 @@ var inlineQueryCommand = bots.NewInlineQueryCommand(
 // 	return
 // }
 
-
 func inlineKbMarkup(lang string) *tgbotapi.InlineKeyboardMarkup {
-	sizeButton := func (width, height int) tgbotapi.InlineKeyboardButton {
+	sizeButton := func(width, height int) tgbotapi.InlineKeyboardButton {
 		return tgbotapi.InlineKeyboardButton{
-		Text:         fmt.Sprintf(strconv.Itoa(width) + "x" + strconv.Itoa(height)),
-		CallbackData: newBoardCallbackData(width, height, lang),
-	}
+			Text:         fmt.Sprintf(strconv.Itoa(width) + "x" + strconv.Itoa(height)),
+			CallbackData: newBoardCallbackData(width, height, lang),
+		}
 	}
 	return tgbotapi.NewInlineKeyboardMarkup(
 		[]tgbotapi.InlineKeyboardButton{
@@ -90,13 +89,14 @@ func inlineKbMarkup(lang string) *tgbotapi.InlineKeyboardMarkup {
 		},
 	)
 }
+
 var newBoardSizesKeyboard = map[string]*tgbotapi.InlineKeyboardMarkup{
 	"en-US": inlineKbMarkup("en-US"),
 	"ru-RU": inlineKbMarkup("ru-RU"),
 }
 
 func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryContext) (m bots.MessageFromBot, err error) {
-	return pabot.ProcessInlineQueryTournament(whc, inlineQuery, rpssecrets.RpsPrizarenaGameID, "tournament",
+	return pabot.ProcessInlineQueryTournament(whc, inlineQuery, pairsecrets.PrizarenaGameID, "tournament",
 		func(tournament pamodels.Tournament) (m bots.MessageFromBot, err error) {
 			// c := whc.Context()
 
