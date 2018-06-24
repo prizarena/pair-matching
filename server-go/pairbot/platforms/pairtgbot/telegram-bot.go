@@ -11,8 +11,6 @@ import (
 
 var botsBy bots.SettingsBy
 
-const BotProfile = "RockPaperScissors"
-
 func Bots(c context.Context, env strongo.Environment, router bots.WebhooksRouter) bots.SettingsBy {
 	if len(botsBy.ByCode) == 0 {
 		routerByProfile := func(profile string) bots.WebhooksRouter {
@@ -22,7 +20,7 @@ func Bots(c context.Context, env strongo.Environment, router bots.WebhooksRouter
 		switch env {
 		case strongo.EnvProduction:
 			botsBy = bots.NewBotSettingsBy(routerByProfile,
-				telegram.NewTelegramBot(strongo.EnvProduction, BotProfile,
+				telegram.NewTelegramBot(strongo.EnvProduction, "PairMatching",
 					pairsecrets.TelegramProdBot, pairsecrets.TelegramProdToken,
 					"", "", pairsecrets.GaTrackingID, strongo.LocaleEnUS),
 			)

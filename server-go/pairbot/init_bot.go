@@ -3,7 +3,6 @@ package pairbot
 import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/strongo/bots-framework/core"
-	"net/http"
 	"github.com/strongo/app"
 	"github.com/strongo/bots-framework/platforms/telegram"
 	"context"
@@ -15,13 +14,13 @@ import (
 func InitBot(httpRouter *httprouter.Router, botHost bots.BotHost, appContext bots.BotAppContext) error {
 	gaSettings := bots.AnalyticsSettings{
 		GaTrackingID: pairsecrets.GaTrackingID,
-		Enabled: func(r *http.Request) bool {
-			return false
-		},
+		// Enabled: func(r *http.Request) bool {
+		// 	return false
+		// },
 	}
 
 	driver := bots.NewBotDriver(gaSettings, appContext, botHost,
-		"Please report any issues to @",
+		"Please report any issues to @trakhimenok",
 	)
 	// routing.WebhooksRouter
 

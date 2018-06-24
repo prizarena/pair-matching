@@ -6,8 +6,8 @@ import (
 	"github.com/prizarena/turn-based"
 	"math/rand"
 	"time"
-	"strings"
 	"fmt"
+	"strings"
 )
 
 type PairsBoardEntity struct {
@@ -97,19 +97,16 @@ func (board PairsBoardEntity) DrawBoard() string {
 }
 
 func (board PairsBoardEntity) IsCompleted(players []PairsPlayer) (isCompleted bool) {
-	isCompleted = len(players) > 0
-	if isCompleted {
-		for _, cell := range board.Cells {
-			s := string(cell)
-			for _, p := range players {
-				if !strings.Contains(p.MatchedItems, s) {
-					isCompleted = false
-					break
-				}
-			}
+	if len(players) == 0 {
+		return false
+	}
+	s := board.Cells
+	for _, p := range players {
+		for _, tile := range p.MatchedItems {
+			s = strings.Replace(s, string(tile), "", 2)
 		}
 	}
-	return
+	return s == ""
 }
 
 func emojiSet() []rune {

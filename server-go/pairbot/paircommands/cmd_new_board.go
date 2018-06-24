@@ -48,23 +48,26 @@ var newBoardCommand = bots.NewCallbackCommand(
 			}
 			var changed bool
 			if err == nil { // Existing entity
-				if boardUsersCount := len(board.UserIDs); boardUsersCount > 0 {
+				log.Debugf(c, "Existing board entity")
+				if boardUsersCount := len(board.UserIDs); boardUsersCount > 1 {
 					log.Debugf(c, "Will delete %v player entities", boardUsersCount)
 					players := make([]db.EntityHolder, boardUsersCount)
 					for i, userID := range board.UserIDs {
-						players[i] = &pairmodels.PairsPlayer{StringID: db.NewStrID(board.ID + ":" + userID)}
+						players[i] = &pairmodels.PairsPlayer{StringID: db.NewStrID(pairmodels.NewPlayerID(board.ID, userID))}
 					}
 					if err = pairdal.DB.DeleteMulti(tc, players); err != nil {
 						return
 					}
-				} else {
-					log.Debugf(c, "Existing board entity")
 				}
 				now := time.Now()
 				if board.Created.Before(now.Add(-time.Second*2)) {
 					board.Created = now
 					board.Size = size
 					board.Cells = pairmodels.NewCells(size.Width(), size.Height())
+					board.PairsPlayerEntity = pairmodels.PairsPlayerEntity{}
+					board.UserIDs = []string{}
+					board.UserNames = []string{}
+					board.UserWins = []int{}
 					changed = true
 				}
 			} else if db.IsNotFound(err) {

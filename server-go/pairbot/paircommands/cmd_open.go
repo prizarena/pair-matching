@@ -256,14 +256,17 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 			}
 
 			var changed bool
+			// var changedPlayers []pairmodels.PairsPlayer
 			// ===================================================================================================
-			if changed, err = pairgame.OpenCell(board.PairsBoardEntity, ca, player, players); err != nil {
+			if changed, _, err = pairgame.OpenCell(board.PairsBoardEntity, ca, player, players); err != nil {
 				// ================================================================================================
-				if err == pairgame.ErrAlreadyMatched {
+				switch err {
+				case pairgame.ErrAlreadyMatched:
 					isAlreadyMatched = true
 					err = nil
-				} else {
-					return
+				case pairgame.ErrBoardIsCompleted:
+					log.Debugf(c, err.Error())
+					err = nil
 				}
 			}
 			if userName != "" && player.UserName != userName {

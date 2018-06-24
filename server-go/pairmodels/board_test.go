@@ -112,3 +112,26 @@ func TestGetCell(t *testing.T) {
 	testCell("B4", '🍑')
 	testCell("C4", '🍒')
 }
+
+func TestPairsBoardEntity_IsCompleted(t *testing.T) {
+	board := PairsBoardEntity{
+		Cells: "🍇🍈🍉🍊🍋🍌🍇🍈🍉🍊🍋🍌",
+		Size: "C4",
+	}
+
+	p1 := PairsPlayer{
+		PairsPlayerEntity: &PairsPlayerEntity{
+			MatchedItems: "🍇🍈🍉🍊🍋🍌",
+			MatchedCount: 6,
+		},
+	}
+	p2 := PairsPlayer{
+		PairsPlayerEntity: &PairsPlayerEntity{
+			MatchedItems: "",
+			MatchedCount: 0,
+		},
+	}
+	if board.IsCompleted([]PairsPlayer{p1, p2}) != true {
+		t.Error("IsCompleted() => false, expected true")
+	}
+}
