@@ -10,10 +10,10 @@ import (
 	"github.com/strongo/app"
 	"github.com/prizarena/turn-based"
 	"github.com/prizarena/rock-paper-scissors/server-go/rpstrans"
-	"github.com/prizarena/rock-paper-scissors/server-go/rpssecrets"
 	"github.com/prizarena/pair-matching/server-go/pairmodels"
 	"time"
-	)
+	"github.com/prizarena/pair-matching/server-go/pairsecrets"
+)
 
 var inlineQueryCommand = bots.NewInlineQueryCommand(
 	"inline-query",
@@ -64,7 +64,7 @@ var newBoardSizesKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 )
 
 func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryContext) (m bots.MessageFromBot, err error) {
-	return pabot.ProcessInlineQueryTournament(whc, inlineQuery, rpssecrets.RpsPrizarenaGameID, "tournament",
+	return pabot.ProcessInlineQueryTournament(whc, inlineQuery, pairsecrets.PrizarenaGameID, "tournament",
 		func(tournament pamodels.Tournament) (m bots.MessageFromBot, err error) {
 			c := whc.Context()
 

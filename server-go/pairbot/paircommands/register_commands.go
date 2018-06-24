@@ -17,10 +17,10 @@ func RegisterPairCommands(router bots.WebhooksRouter) {
 		newBoardCommand,
 	})
 
-	pabot.InitPrizarenaBot(router, func(httpClient *http.Client) prizarena_interfaces.ApiClient {
+	pabot.InitPrizarenaBot("pairmatching", router, func(httpClient *http.Client) prizarena_interfaces.ApiClient {
 		if httpClient == nil {
 			panic("httpClient == nil")
 		}
-		return prizarena.NewHttpApiClient(httpClient, "", pairsecrets.PairPrizarenaGameID, pairsecrets.PairPrizarenaToken)
+		return prizarena.NewHttpApiClient(httpClient, "", pairsecrets.PrizarenaGameID, pairsecrets.PrizarenaToken)
 	})
 }
