@@ -1,6 +1,15 @@
 package pairtrans
 
-import "github.com/strongo/bots-framework/core"
+import (
+	"github.com/strongo/bots-framework/core"
+	"github.com/prizarena/prizarena-public/patrans"
+)
+
+func init() {
+	for k, v := range patrans.TRANS {
+		TRANS[k] = v
+	}
+}
 
 var TRANS = map[string]map[string]string{
 	bots.MessageTextOopsSomethingWentWrong: {

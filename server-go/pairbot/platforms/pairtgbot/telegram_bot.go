@@ -30,7 +30,3 @@ func Bots(c context.Context, env strongo.Environment, router bots.WebhooksRouter
 	}
 	return botsBy
 }
-
-func BotsBy(_ context.Context) bots.SettingsBy {
-	return botsBy
-}
