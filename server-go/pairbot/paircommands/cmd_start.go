@@ -81,7 +81,10 @@ func startAction(whc bots.WebhookContext) (m bots.MessageFromBot, err error) {
 			{Text: "English", CallbackData: "start?l=en&cl="+whc.Locale().Code5},
 		},
 		[]tgbotapi.InlineKeyboardButton{
-			{Text: whc.Translate(pairtrans.Play), SwitchInlineQuery: &switchInlinePlay},
+			{Text: whc.Translate(pairtrans.SinglePlayer), SwitchInlineQuery: &switchInlinePlay},
+		},
+		[]tgbotapi.InlineKeyboardButton{
+			{Text: whc.Translate(pairtrans.MultiPlayer), CallbackData: newPlayCommandCode},
 		},
 		[]tgbotapi.InlineKeyboardButton{
 			{Text: whc.Translate(pairtrans.Tournaments), CallbackData: "tournaments"},

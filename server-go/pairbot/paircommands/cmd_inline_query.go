@@ -75,7 +75,7 @@ func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryConte
 				if tournament.ID == "" {
 					keyboard = newNonTournamentBoardSizesKeyboards[lang]
 				} else {
-					keyboard = getNewPlayTgInlineKbMarkup(lang, tournament.ID)
+					keyboard = getNewPlayTgInlineKbMarkup(lang, tournament.ID, 0)
 				}
 				return tgbotapi.InlineQueryResultArticle{
 					ID:          articleID,

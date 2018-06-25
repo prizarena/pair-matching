@@ -17,27 +17,27 @@ const newPlayCommandCode = "new_play"
 var newPlayCommand = bots.Command{
 	Code: newPlayCommandCode,
 	Action: func(whc bots.WebhookContext) (m bots.MessageFromBot, err error) {
-		return newPlayAction(whc, "")
+		return newPlayAction(whc, "", 1)
 	},
 	CallbackAction: func(whc bots.WebhookContext, callbackUrl *url.URL) (m bots.MessageFromBot, err error) {
 		tournamentID := callbackUrl.Query().Get("t")
-		return newPlayAction(whc, tournamentID)
+		return newPlayAction(whc, tournamentID, 1)
 	},
 }
 
-func newPlayAction(whc bots.WebhookContext, tournamentID string) (m bots.MessageFromBot, err error) {
+func newPlayAction(whc bots.WebhookContext, tournamentID string, maxUsersLimit int) (m bots.MessageFromBot, err error) {
 	var tournament pamodels.Tournament
 	m.Text = getNewPlayText(whc, tournament)
 	m.Format = bots.MessageFormatHTML
-	m.Keyboard = getNewPlayTgInlineKbMarkup(whc.Locale().Code5, tournamentID)
+	m.Keyboard = getNewPlayTgInlineKbMarkup(whc.Locale().Code5, tournamentID, maxUsersLimit)
 	return
 }
 
-func getNewPlayTgInlineKbMarkup(lang, tournamentID string) *tgbotapi.InlineKeyboardMarkup {
+func getNewPlayTgInlineKbMarkup(lang, tournamentID string, maxUsersLimit int) *tgbotapi.InlineKeyboardMarkup {
 	sizeButton := func(width, height int) tgbotapi.InlineKeyboardButton {
 		return tgbotapi.InlineKeyboardButton{
 			Text:         fmt.Sprintf(strconv.Itoa(width) + "x" + strconv.Itoa(height)),
-			CallbackData: getNewBoardCallbackData(width, height, tournamentID, lang),
+			CallbackData: getNewBoardCallbackData(width, height, maxUsersLimit, tournamentID, lang),
 		}
 	}
 	return tgbotapi.NewInlineKeyboardMarkup(
@@ -68,8 +68,8 @@ func getNewPlayTgInlineKbMarkup(lang, tournamentID string) *tgbotapi.InlineKeybo
 }
 
 var newNonTournamentBoardSizesKeyboards = map[string]*tgbotapi.InlineKeyboardMarkup{
-	"en-US": getNewPlayTgInlineKbMarkup("en-US", ""),
-	"ru-RU": getNewPlayTgInlineKbMarkup("ru-RU", ""),
+	"en-US": getNewPlayTgInlineKbMarkup("en-US", "", 0),
+	"ru-RU": getNewPlayTgInlineKbMarkup("ru-RU", "", 0),
 }
 
 

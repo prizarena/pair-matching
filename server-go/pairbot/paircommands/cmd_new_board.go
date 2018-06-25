@@ -12,16 +12,24 @@ import (
 	"github.com/prizarena/turn-based"
 		"github.com/strongo/log"
 	"time"
+	"bytes"
+	"strconv"
 )
 
 const newBoardCommandCode = "new"
 
-func getNewBoardCallbackData(width, height int, tournamentID, lang string) string {
-	if tournamentID == "" {
-		return fmt.Sprintf("new?s=%v&l=%v", turnbased.NewSize(width, height), lang)
-	} else {
-		return fmt.Sprintf("new?s=%v&l=%v&t=%v", turnbased.NewSize(width, height), lang, tournamentID)
+func getNewBoardCallbackData(width, height, maxUsersLimit int, tournamentID, lang string) string {
+	s := new(bytes.Buffer)
+	fmt.Fprintf(s,"new?s=%v&l=%v", turnbased.NewSize(width, height), lang)
+	if tournamentID != "" {
+		fmt.Fprint(s, "&t=" + tournamentID)
 	}
+	if maxUsersLimit > 0 {
+		fmt.Fprint(s, "&max=" + strconv.Itoa(maxUsersLimit))
+	} else if maxUsersLimit < 0 {
+		panic(fmt.Sprintf("maxUsersLimit < 0: %v", maxUsersLimit))
+	}
+	return s.String()
 }
 
 var newBoardCommand = bots.NewCallbackCommand(
@@ -32,6 +40,13 @@ var newBoardCommand = bots.NewCallbackCommand(
 		var size turnbased.Size
 		if size, err = getSize(q, "s"); err != nil {
 			return
+		}
+
+		var maxUsersLimit int
+		if s := q.Get("max"); s != "" {
+			if maxUsersLimit, err = strconv.Atoi(s); err != nil {
+				return
+			}
 		}
 
 		if err = whc.SetLocale(q.Get("l")); err != nil {
@@ -72,6 +87,7 @@ var newBoardCommand = bots.NewCallbackCommand(
 					board.UserIDs = []string{}
 					board.UserNames = []string{}
 					board.UserWins = []int{}
+					board.UsersMax = maxUsersLimit
 					changed = true
 				}
 			} else if db.IsNotFound(err) {
