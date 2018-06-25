@@ -16,8 +16,12 @@ import (
 
 const newBoardCommandCode = "new"
 
-func newBoardCallbackData(width, height int, lang string) string {
-	return fmt.Sprintf("new?s=%v&l=%v", turnbased.NewSize(width, height), lang)
+func getNewBoardCallbackData(width, height int, tournamentID, lang string) string {
+	if tournamentID == "" {
+		return fmt.Sprintf("new?s=%v&l=%v", turnbased.NewSize(width, height), lang)
+	} else {
+		return fmt.Sprintf("new?s=%v&l=%v&t=%v", turnbased.NewSize(width, height), lang, tournamentID)
+	}
 }
 
 var newBoardCommand = bots.NewCallbackCommand(

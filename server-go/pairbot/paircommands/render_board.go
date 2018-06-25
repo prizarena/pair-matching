@@ -28,7 +28,7 @@ func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament *pamod
 		fmt.Fprintf(text,"\n<b>%v:</b>", t.Translate(pairtrans.Board))
 		text.WriteString(board.DrawBoard())
 		fmt.Fprintf(text, "\n<b>%v</b>", t.Translate(pairtrans.ChooseSizeOfNextBoard))
-		m.Keyboard = newBoardSizesKeyboard[lang]
+		m.Keyboard = newNonTournamentBoardSizesKeyboards[lang]
 	} else {
 		width, height := board.Size.WidthHeight()
 		kbRows := make([][]tgbotapi.InlineKeyboardButton, height)
