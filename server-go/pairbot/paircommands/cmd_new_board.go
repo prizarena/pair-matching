@@ -54,7 +54,11 @@ var newBoardCommand = bots.NewCallbackCommand(
 		}
 
 		var board pairmodels.PairsBoard
-		board.ID = whc.Input().(telegram.TgWebhookCallbackQuery).GetInlineMessageID()
+		tgCallbackQuery := whc.Input().(telegram.TgWebhookCallbackQuery)
+		board.ID = tgCallbackQuery.GetInlineMessageID()
+		if board.ID == "" { // Inside bot single-player mode
+			board.ID = tgCallbackQuery.GetID()
+		}
 
 		userID := whc.AppUserStrID()
 		// var botAppUser bots.BotAppUser
