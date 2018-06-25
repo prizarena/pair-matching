@@ -13,9 +13,10 @@ import (
 	"github.com/prizarena/pair-matching/server-go/pairtrans"
 )
 
-func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament *pamodels.Tournament, board pairmodels.PairsBoard, userID string, players []pairmodels.PairsPlayer) (m bots.MessageFromBot, err error) {
+func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament pamodels.Tournament, board pairmodels.PairsBoard, userID string, players []pairmodels.PairsPlayer) (m bots.MessageFromBot, err error) {
 	lang := t.Locale().Code5
 	isCompleted := board.IsCompleted(players)
+	m.IsEdit = true
 	m.Format = bots.MessageFormatHTML
 	text := new(bytes.Buffer)
 	fmt.Fprintf(text, `<a href="https://t.me/PairMatchingGameBot">%v</a>`, t.Translate(pairtrans.GameCardTitle))
@@ -28,7 +29,11 @@ func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament *pamod
 		fmt.Fprintf(text,"\n<b>%v:</b>", t.Translate(pairtrans.Board))
 		text.WriteString(board.DrawBoard())
 		fmt.Fprintf(text, "\n<b>%v</b>", t.Translate(pairtrans.ChooseSizeOfNextBoard))
-		m.Keyboard = newNonTournamentBoardSizesKeyboards[lang]
+		if board.UsersMax == 1 || tournament.ID != "" {
+			m.Keyboard = getNewPlayTgInlineKbMarkup(lang, tournament.ID, board.UsersMax)
+		} else {
+			m.Keyboard = newNonTournamentBoardSizesKeyboards[lang]
+		}
 	} else {
 		width, height := board.Size.WidthHeight()
 		kbRows := make([][]tgbotapi.InlineKeyboardButton, height)
@@ -57,7 +62,11 @@ func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament *pamod
 				if text == "" {
 					text = closed
 				}
-				kbRow[x] = tgbotapi.InlineKeyboardButton{Text: text, CallbackData: openCellCallbackData(turnbased.NewCellAddress(x, y), len(board.UserIDs), board.ID, userID, lang)}
+				var boardID string
+				if board.UsersMax == 1 {
+					boardID = board.ID
+				}
+				kbRow[x] = tgbotapi.InlineKeyboardButton{Text: text, CallbackData: openCellCallbackData(turnbased.NewCellAddress(x, y), len(board.UserIDs), boardID, userID, lang)}
 			}
 			kbRows[y] = kbRow
 		}

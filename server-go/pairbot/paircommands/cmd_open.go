@@ -18,6 +18,7 @@ import (
 	"strconv"
 	"github.com/pkg/errors"
 	"bytes"
+	"github.com/prizarena/prizarena-public/pamodels"
 )
 
 const openCellCommandCode = "open"
@@ -29,6 +30,9 @@ func openCellCallbackData(ca turnbased.CellAddress, playersCount int, boardID, u
 	// fmt.Fprintf(s, "?c=%v&p=%v&b=%v&l=%v", ca, playersCount, boardID, lang)
 	if playersCount == 1 {
 		s.WriteString("&u=" + userID)
+	}
+	if boardID != ""  {
+		s.WriteString("&b="+boardID)
 	}
 	return s.String()
 }
@@ -333,7 +337,8 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 				err = nil
 			}
 		}
-		return renderPairsBoardMessage(whc, nil, board, userID, players)
+		tournament := pamodels.Tournament{StringID: db.NewStrID(board.TournamentID)}
+		return renderPairsBoardMessage(whc, tournament, board, userID, players)
 	},
 )
 

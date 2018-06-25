@@ -14,6 +14,8 @@ import (
 	"time"
 	"bytes"
 	"strconv"
+	"github.com/prizarena/prizarena-public/pamodels"
+	"strings"
 )
 
 const newBoardCommandCode = "new"
@@ -22,6 +24,9 @@ func getNewBoardCallbackData(width, height, maxUsersLimit int, tournamentID, lan
 	s := new(bytes.Buffer)
 	fmt.Fprintf(s,"new?s=%v&l=%v", turnbased.NewSize(width, height), lang)
 	if tournamentID != "" {
+		if i := strings.Index(tournamentID, pamodels.TournamentIDSeparator); i >= 0 {
+			tournamentID = tournamentID[i+1:]
+		}
 		fmt.Fprint(s, "&t=" + tournamentID)
 	}
 	if maxUsersLimit > 0 {
@@ -47,6 +52,9 @@ var newBoardCommand = bots.NewCallbackCommand(
 			if maxUsersLimit, err = strconv.Atoi(s); err != nil {
 				return
 			}
+			log.Debugf(c, "maxUsersLimit: %v", maxUsersLimit)
+		} else {
+			log.Debugf(c, "No maxUsersLimit")
 		}
 
 		if err = whc.SetLocale(q.Get("l")); err != nil {
@@ -58,6 +66,11 @@ var newBoardCommand = bots.NewCallbackCommand(
 		board.ID = tgCallbackQuery.GetInlineMessageID()
 		if board.ID == "" { // Inside bot single-player mode
 			board.ID = tgCallbackQuery.GetID()
+		}
+
+		tournamentID := q.Get("t")
+		if i := strings.Index(tournamentID, pamodels.TournamentIDSeparator); i >= 0 { // Just in case
+			tournamentID = tournamentID[i+1:]
 		}
 
 		userID := whc.AppUserStrID()
@@ -101,6 +114,8 @@ var newBoardCommand = bots.NewCallbackCommand(
 					BoardEntityBase: turnbased.BoardEntityBase{
 						Created: time.Now(),
 						CreatorUserID: userID,
+						UsersMax: maxUsersLimit,
+						TournamentID: tournamentID,
 					},
 					Size:  size,
 					Cells: pairmodels.NewCells(size.Width(), size.Height()),
@@ -121,7 +136,8 @@ var newBoardCommand = bots.NewCallbackCommand(
 			return
 		}
 		// TODO: check and notify if another user already selected different board size.
-		m, err = renderPairsBoardMessage(whc, nil, board, userID,nil)
+		tournament := pamodels.Tournament{StringID: db.NewStrID(board.TournamentID)}
+		m, err = renderPairsBoardMessage(whc, tournament, board, userID,nil)
 		return
 	},
 )
