@@ -55,7 +55,7 @@ var inlineQueryCommand = bots.NewInlineQueryCommand(
 
 
 func inlineQueryPlay(whc bots.WebhookContext, inlineQuery pabot.InlineQueryContext) (m bots.MessageFromBot, err error) {
-	return pabot.ProcessInlineQueryTournament(whc, inlineQuery, pairsecrets.PrizarenaGameID, "tournament",
+	return pabot.ProcessInlineQueryTournament(whc, inlineQuery, pairsecrets.PrizarenaGameID, pairsecrets.PrizarenaToken,"tournament",
 		func(tournament pamodels.Tournament) (m bots.MessageFromBot, err error) {
 			// c := whc.Context()
 

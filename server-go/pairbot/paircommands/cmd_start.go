@@ -67,7 +67,7 @@ func startCallbackAction(whc bots.WebhookContext, callbackUrl *url.URL) (m bots.
 }
 
 func startAction(whc bots.WebhookContext) (m bots.MessageFromBot, err error) {
-	if m, err = pabot.OnStartIfTournamentLink(whc, pairsecrets.PrizarenaGameID); m.Text != "" || err != nil {
+	if m, err = pabot.OnStartIfTournamentLink(whc, pairsecrets.PrizarenaGameID, pairsecrets.PrizarenaToken); m.Text != "" || err != nil {
 		return
 	}
 	text := new(bytes.Buffer)
