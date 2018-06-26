@@ -8,6 +8,8 @@ import (
 	"time"
 	"fmt"
 	"strings"
+	"github.com/strongo/db/gaedb"
+	"google.golang.org/appengine/datastore"
 )
 
 type PairsBoardEntity struct {
@@ -108,6 +110,24 @@ func (board PairsBoardEntity) IsCompleted(players []PairsPlayer) (isCompleted bo
 	}
 	return s == ""
 }
+
+func (board *PairsBoardEntity) Load(ps []datastore.Property) (err error) {
+	return datastore.LoadStruct(board, ps)
+}
+
+func (board *PairsBoardEntity) Save() (properties []datastore.Property, err error) {
+	if properties, err = datastore.SaveStruct(board); err != nil {
+		return properties, err
+	}
+	if properties, err = gaedb.CleanProperties(properties, map[string]gaedb.IsOkToRemove{
+		"pdc": gaedb.IsZeroTime,
+		"pdl": gaedb.IsZeroTime,
+	}); err != nil {
+		return
+	}
+	return
+}
+
 
 func emojiSet() []rune {
 	return []rune{
