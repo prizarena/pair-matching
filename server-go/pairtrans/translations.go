@@ -36,6 +36,28 @@ var TRANS = map[string]map[string]string{
 		"en-US": "Pair-Matching game",
 		"ru-RU": "Игра: Найди пару",
 	},
+	OnStartWelcome: {
+		"en-US": `🀄 <b>Pair-Matching game</b>
+
+You are given a board with closed tiles. Find matching pairs by opening tiles 1 by 1. If you open 2 non matching tiles they get closed. 
+
+🤺 You can practice alone or play in race mode against friends. 
+
+🏆 Create tournaments for your friends or subscribers of your channel.
+
+💵 From time to time there are <b>free to play</b> sponsored tournaments with cash prizes! 
+`,
+		"ru-RU": `🀄 <b>Игра: Найди пару</b>
+
+Создаётся поле с закрытыми карточками. Открывая их по одной найдите пары. Если вы открыли 2 несовпадающие карточки то они закрываются.
+
+🤺 Играть можно одному или на перегонки с друзьями.
+
+🏆 Проводите турниры среди друзей или подписчиков своего канала. 
+
+💵 Иногда проводятся спосорские турниры с <b>бесплатным участием</b> и денежными призами!
+`,
+	},
 	ChooseSizeOfNextBoard: {
 		"en-US": "Choose size of next board:",
 		"ru-RU": "Выберите размер следующей доски:",

@@ -6,9 +6,7 @@ import (
 	"net/url"
 	"github.com/strongo/bots-framework/platforms/telegram"
 	"github.com/prizarena/pair-matching/server-go/pairtrans"
-	"fmt"
-	"bytes"
-	"github.com/strongo/log"
+			"github.com/strongo/log"
 	"github.com/prizarena/prizarena-public/pabot"
 	"github.com/prizarena/pair-matching/server-go/pairsecrets"
 )
@@ -70,9 +68,7 @@ func startAction(whc bots.WebhookContext) (m bots.MessageFromBot, err error) {
 	if m, err = pabot.OnStartIfTournamentLink(whc, pairsecrets.PrizarenaGameID, pairsecrets.PrizarenaToken); m.Text != "" || err != nil {
 		return
 	}
-	text := new(bytes.Buffer)
-	fmt.Fprintf(text, "🀄 <b>%v</b>\n", whc.Translate(pairtrans.GameCardTitle))
-	m.Text = text.String()
+	m.Text = whc.Translate(pairtrans.OnStartWelcome)
 	m.Format = bots.MessageFormatHTML
 	switchInlinePlay := whc.Locale().Code5[:2]
 	m.Keyboard = tgbotapi.NewInlineKeyboardMarkup(

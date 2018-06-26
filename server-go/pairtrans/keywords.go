@@ -1,7 +1,9 @@
 package pairtrans
 
 const (
-	GameCardTitle               = "GameCardTitle"
+	GameCardTitle  = "GameCardTitle"
+	OnStartWelcome = "OnStartWelcome"
+
 	NewGameInlineTitle          = "NewGameInlineTitle"
 	NewGameInlineDescription    = "NewGameInlineDescription"
 	NewGameText                 = "NewGameText"
