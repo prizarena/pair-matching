@@ -17,7 +17,7 @@ var (
 func OpenCell(
 	board *pairmodels.PairsBoardEntity, ca turnbased.CellAddress, player pairmodels.PairsPlayer, players []pairmodels.PairsPlayer,
 ) (
-	changed bool, changedPlayers []pairmodels.PairsPlayer, err error,
+	changed bool, matchedTile string, changedPlayers []pairmodels.PairsPlayer, err error,
 ) {
 	if ca == "" {
 		panic("Cell address is required to open a cell")
@@ -98,25 +98,6 @@ func OpenCell(
 			}
 			if matched = board.GetCell(openField) == currentlyOpened; matched {
 				playerChanged(p)
-			 	// if p.ID == player.ID {
-				// 	// TODO: Unit tests VERY needed!
-				// 	// Current player opened a 3d tile that is 1 of 2 previously opened by him/here.
-				// 	// This is not a real match.
-				// 	matched = false
-				// } else {
-				// 	err = fmt.Errorf("unexpected player state - both Open1 and Open2 are not empty: playerID=%v, Open1=%v, Open2=%v, ca=%v",
-				// 		player.ID, player.Open1, player.Open2, ca)
-				// 	return
-				// }
-				// switch openN {
-				// case 1:
-				// 	p.Open1 = p.Open2
-				// 	p.Open2 = ""
-				// case 2:
-				// 	p.Open2 = ""
-				// default:
-				// 	panic("openN != 1|2")
-				// }
 			}
 			return
 		}
@@ -138,6 +119,8 @@ func OpenCell(
 		}
 	}
 
+	player.FlipsCount++
+
 	if atLeastOneMatched {
 		changed = true
 		if player.Open1 == "" {
@@ -151,16 +134,13 @@ func OpenCell(
 		} else {
 			player.MatchedItems += "," + currentlyOpened
 		}
-
+		matchedTile = currentlyOpened
 		return
 	}
 
 	if player.Open1 == "" {
 		changed = true
 		player.Open1 = ca
-	} else if player.Open1 == ca && player.Open2 == "" {
-		// changed = false
-		return
 	} else if player.Open2 == "" {
 		changed = true
 		player.Open2 = ca

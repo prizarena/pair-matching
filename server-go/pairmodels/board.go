@@ -139,13 +139,13 @@ var goodEmojies []string
 func emojiSet() []string {
 	if len(goodEmojies) == 0 {
 		categories := [][]string{
-			emoji.CategoryActivity,
-			emoji.CategoryFlags,
-			emoji.CategoryFoods,
-			emoji.CategoryNature,
-			emoji.CategoryObjects,
-			emoji.CategoryPeople,
-			emoji.CategoryPlaces,
+			emojis.CategoryActivity,
+			emojis.CategoryFlags,
+			emojis.CategoryFoods,
+			emojis.CategoryNature,
+			emojis.CategoryObjects,
+			emojis.CategoryPeople,
+			emojis.CategoryPlaces,
 		}
 		var length int
 		for _, category := range categories {

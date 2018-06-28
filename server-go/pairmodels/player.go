@@ -11,7 +11,7 @@ import (
 type PairsPlayerEntity struct {
 	PlayerCreated time.Time             `datastore:"pdc,noindex,omitempty"`
 	LastMove      time.Time             `datastore:"pdl,noindex,omitempty"`
-	TurnsCount    int                   `datastore:"ptc,noindex,omitempty"`
+	FlipsCount    int                   `datastore:"pfc,noindex,omitempty"`
 	UserName      string                `datastore:"pun,noindex,omitempty"`
 	MatchedCount  int                   `datastore:"pmc,noindex,omitempty"`
 	MatchedItems  string                `datastore:"pmi,noindex,omitempty"`

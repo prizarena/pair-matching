@@ -137,7 +137,7 @@ var newBoardCommand = bots.NewCallbackCommand(
 		}
 		// TODO: check and notify if another user already selected different board size.
 		tournament := pamodels.Tournament{StringID: db.NewStrID(board.TournamentID)}
-		m, err = renderPairsBoardMessage(c, whc, tournament, board, userID,nil)
+		m, err = renderPairsBoardMessage(c, whc, tournament, board, "", userID,nil)
 		return
 	},
 )

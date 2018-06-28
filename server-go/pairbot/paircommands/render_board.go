@@ -11,11 +11,13 @@ import (
 	"github.com/prizarena/turn-based"
 	"bytes"
 	"github.com/prizarena/pair-matching/server-go/pairtrans"
+	"github.com/strongo/emoji/go/emoji"
+	"github.com/strongo/emoji/go"
 	"context"
 	"github.com/strongo/log"
 )
 
-func renderPairsBoardMessage(c context.Context, t strongo.SingleLocaleTranslator, tournament pamodels.Tournament, board pairmodels.PairsBoard, userID string, players []pairmodels.PairsPlayer) (m bots.MessageFromBot, err error) {
+func renderPairsBoardMessage(c context.Context, t strongo.SingleLocaleTranslator, tournament pamodels.Tournament, board pairmodels.PairsBoard, matchedTile, userID string, players []pairmodels.PairsPlayer) (m bots.MessageFromBot, err error) {
 	isCompleted := board.IsCompleted(players)
 	log.Debugf(c, "renderPairsBoardMessage(): isCompleted=%v", isCompleted)
 	lang := t.Locale().Code5
@@ -25,18 +27,38 @@ func renderPairsBoardMessage(c context.Context, t strongo.SingleLocaleTranslator
 	fmt.Fprintf(text, `<a href="https://t.me/PairMatchingGameBot">%v</a>`, t.Translate(pairtrans.GameCardTitle))
 	fmt.Fprintln(text, "")
 	fmt.Fprintln(text, t.Translate(pairtrans.FindFast))
-	for i, p := range players {
-		fmt.Fprintf(text, "%d. <b>%v</b>: %v\n", i+1, p.UserName, p.MatchedCount)
+	if board.UsersMax == 1 && len(players) == 1 {
+		switch players[0].MatchedCount {
+		case 0: // Nothing
+		case 1:
+			fmt.Fprintf(text, t.Translate(pairtrans.SinglePlayerMatchedOne))
+		default:
+			fmt.Fprintf(text, t.Translate(pairtrans.SinglePlayerMatchedCount, players[0].MatchedCount))
+		}
+	} else {
+		for i, p := range players {
+			fmt.Fprintf(text, "%d. <b>%v</b>: %v\n", i+1, p.UserName, p.MatchedCount)
+		}
 	}
 	if isCompleted {
 		fmt.Fprintf(text,"\n<b>%v:</b>", t.Translate(pairtrans.Board))
 		text.WriteString(board.DrawBoard("", "\n"))
-		fmt.Fprintf(text, "\n<b>%v</b>", t.Translate(pairtrans.ChooseSizeOfNextBoard))
-		if board.UsersMax == 1 || tournament.ID != "" {
-			m.Keyboard = getNewPlayTgInlineKbMarkup(lang, tournament.ID, board.UsersMax)
-		} else {
-			m.Keyboard = newNonTournamentBoardSizesKeyboards[lang]
+		if board.UsersMax == 1 {
+			fmt.Fprintf(text, "\n" + t.Translate(pairtrans.Flips, board.PairsPlayerEntity.FlipsCount))
 		}
+		fmt.Fprintf(text, "\n<b>%v</b>", t.Translate(pairtrans.ChooseSizeOfNextBoard))
+
+		var keyboard *tgbotapi.InlineKeyboardMarkup
+		if board.UsersMax == 1 || tournament.ID != "" {
+			keyboard = getNewPlayTgInlineKbMarkup(lang, tournament.ID, board.UsersMax)
+		} else {
+			keyboard = newNonTournamentBoardSizesKeyboards[lang]
+		}
+		switchInlinePlay := t.Locale().Code5[:2]
+		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, []tgbotapi.InlineKeyboardButton{
+			{Text: t.Translate(pairtrans.MultiPlayer), SwitchInlineQuery: &switchInlinePlay},
+		})
+		m.Keyboard = keyboard
 	} else {
 		width, height := board.Size.WidthHeight()
 		kbRows := make([][]tgbotapi.InlineKeyboardButton, height)
@@ -48,7 +70,7 @@ func renderPairsBoardMessage(c context.Context, t strongo.SingleLocaleTranslator
 			kbRow := make([]tgbotapi.InlineKeyboardButton, width)
 			const (
 				isMatched = " "
-				closed = "⬜"
+				closed = emoji.WhiteLargeSquare
 			)
 			for x, cell := range row {
 				var text string
@@ -74,6 +96,14 @@ func renderPairsBoardMessage(c context.Context, t strongo.SingleLocaleTranslator
 			kbRows[y] = kbRow
 		}
 		m.Keyboard = tgbotapi.NewInlineKeyboardMarkup(kbRows...)
+	}
+	if matchedTile != "" {
+		if info, ok := emojis.All[matchedTile]; ok {
+			fmt.Fprintf(text, "\n%v - %v", matchedTile, info.Description)
+			if info.Category == "Flags" {
+				fmt.Fprintf(text, "\n %v", t.Translate(pairtrans.FlagOfTheDay))
+			}
+		}
 	}
 	m.Text = text.String()
 	return

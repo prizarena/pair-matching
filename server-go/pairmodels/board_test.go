@@ -151,4 +151,20 @@ func TestPairsBoardEntity_IsCompleted(t *testing.T) {
 	if board.IsCompleted([]PairsPlayer{p1}) == false {
 		t.Error("IsCompleted() => false, expected true")
 	}
+
+	board = PairsBoardEntity{
+		Cells: "🖲,🇲🇹,🖲,🛎,🗑,🗑,🚏,🚏,👃,🇲🇬,🇲🇹,🗃,👃,🛎,🗃,🇲🇬",
+		Size: "D4",
+	}
+
+	p1 = PairsPlayer{
+		PairsPlayerEntity: &PairsPlayerEntity{
+			MatchedItems: "🖲,🗑,🚏,🇲🇹,🛎,🗃,🇲🇬,👃",
+			MatchedCount: 8,
+		},
+	}
+
+	if board.IsCompleted([]PairsPlayer{p1, p2}) != true {
+		t.Error("IsCompleted() => false, expected true")
+	}
 }

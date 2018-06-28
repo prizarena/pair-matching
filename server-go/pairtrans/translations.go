@@ -20,6 +20,22 @@ var TRANS = map[string]map[string]string{
 		"en-US": "<b>Please select your language</b>\nПожалуйста выберите язык общения",
 		"ru-RU": "<b>Пожалуйста выберите язык общения</b>\nPlease select your language",
 	},
+	FlagOfTheDay: {
+		"en-US": `<i>To learn more about flag subscribe to</i> <a href="https://t.me/FlagOfTheDay">@FlagOfTheDay</a> <i>channel</i>.`,
+		"ru-RU": `<i>Чтобы узнать больше о флагах подпишитесь на канал</i> <a href="https://t.me/FlagOfTheDay">@FlagOfTheDay</a>.`,
+	},
+	Flips: {
+		"en-US": "<b>Turns</b>: %v",
+		"ru-RU": "<b>Ходов</b>: %v",
+	},
+	SinglePlayerMatchedOne: {
+		"en-US": "<b>Matched</b>: 1 pair",
+		"ru-RU": "<b>Найдено</b>: 1 пара",
+	},
+	SinglePlayerMatchedCount: {
+		"en-US": "<b>Matched</b>: %v",
+		"ru-RU": "<b>Найдено</b>: %v",
+	},
 	ChallengeFriendCommandText: {
 		"en-US": "🤺 Challenge Telegram friend",
 		"ru-RU": "🤺 Новая игра в Telegram",

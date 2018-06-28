@@ -156,7 +156,7 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 		player.ID = board.ID + ":" + userID
 
 		var players []pairmodels.PairsPlayer
-
+		var matchedTile string
 		var isAlreadyMatched, isAlreadyOpen, isAlreadyCompleted bool
 
 		// =[ Start of transaction ]=
@@ -264,7 +264,7 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 			// var changedPlayers []pairmodels.PairsPlayer
 			log.Debugf(c, "len(players): %v; Board: %v; players[0].MatchedItems: %v", len(players), board.Cells, players[0].MatchedItems)
 			// ===================================================================================================
-			if changed, _, err = pairgame.OpenCell(board.PairsBoardEntity, ca, player, players); err != nil {
+			if changed, matchedTile, _, err = pairgame.OpenCell(board.PairsBoardEntity, ca, player, players); err != nil {
 				// ================================================================================================
 				switch err {
 				case pairgame.ErrAlreadyOpen:
@@ -332,7 +332,8 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 				log.Errorf(c, "Failed to send already matched alert: %v", err)
 				err = nil
 			}
-		case isAlreadyOpen:
+		}
+		if isAlreadyOpen {
 			m.BotMessage = telegram.CallbackAnswer(tgbotapi.AnswerCallbackQueryConfig{
 				Text:      "This cell is already open by you",
 				CacheTime: 10,
@@ -343,7 +344,8 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 			}
 		}
 		tournament := pamodels.Tournament{StringID: db.NewStrID(board.TournamentID)}
-		return renderPairsBoardMessage(c, whc, tournament, board, userID, players)
+
+		return renderPairsBoardMessage(c, whc, tournament, board, matchedTile, userID, players)
 	},
 )
 

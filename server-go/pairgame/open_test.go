@@ -161,7 +161,7 @@ func TestOpenCell(t *testing.T) {
 
 				stepPlayer := playersByID[step.player]
 
-				if changed, _, err := OpenCell(&theTestCase.board, step.ca, stepPlayer, players); err != nil {
+				if changed, _, _,	 err := OpenCell(&theTestCase.board, step.ca, stepPlayer, players); err != nil {
 					t.Fatalf("Error at step #%v: %v", i, err)
 				} else {
 					if changed != step.expected.changed {
