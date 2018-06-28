@@ -11,7 +11,7 @@ import (
 
 func TestOpenCell(t *testing.T) {
 	var (
-		players []pairmodels.PairsPlayer
+		players     []pairmodels.PairsPlayer
 		playersByID map[string]pairmodels.PairsPlayer
 	)
 
@@ -31,7 +31,6 @@ func TestOpenCell(t *testing.T) {
 		playersByID = map[string]pairmodels.PairsPlayer{p1.ID: p1, p2.ID: p2}
 	}
 
-
 	type expectedPlayer struct {
 		Open1, Open2 turnbased.CellAddress
 		MatchedCount int
@@ -45,7 +44,7 @@ func TestOpenCell(t *testing.T) {
 
 	type Step struct {
 		player string
-		ca turnbased.CellAddress
+		ca     turnbased.CellAddress
 		expected
 	}
 
@@ -54,11 +53,11 @@ func TestOpenCell(t *testing.T) {
 		steps []Step
 	}
 
-	testCases := []testCase {
+	testCases := []testCase{
 		{
 			board: pairmodels.PairsBoardEntity{
-				Size: "D3",
-				Cells: "123456654321",
+				Size:  "D3",
+				Cells: "1,2,3,4,5,6,6,5,4,3,2,1",
 			},
 			steps: []Step{
 				{
@@ -125,8 +124,8 @@ func TestOpenCell(t *testing.T) {
 		},
 		{
 			board: pairmodels.PairsBoardEntity{
-				Size: "D3",
-				Cells: "🚂🚷🚂🚍🚺🚄🚒🚷🚍🚄🚒🚺",
+				Size:  "D3",
+				Cells: "🚂,🚷,🚂,🚍,🚺,🚄,🚒,🚷,🚍,🚄,🚒,🚺",
 			},
 			steps: []Step{
 				{
@@ -145,7 +144,7 @@ func TestOpenCell(t *testing.T) {
 
 	var i int
 	var step Step
-	defer func(){
+	defer func() {
 		if r := recover(); r != nil {
 			t.Fatalf("Unexpected panic at step %v: %v", i+1, r)
 		}
@@ -159,7 +158,9 @@ func TestOpenCell(t *testing.T) {
 		t.Run("case_"+strconv.Itoa(i+1), func(t *testing.T) {
 			newPlayers()
 			for i, step = range theTestCase.steps {
+
 				stepPlayer := playersByID[step.player]
+
 				if changed, _, err := OpenCell(&theTestCase.board, step.ca, stepPlayer, players); err != nil {
 					t.Fatalf("Error at step #%v: %v", i, err)
 				} else {

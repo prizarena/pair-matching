@@ -10,6 +10,7 @@ import (
 	"strings"
 	"github.com/strongo/db/gaedb"
 	"google.golang.org/appengine/datastore"
+	"github.com/strongo/emoji/go"
 )
 
 type PairsBoardEntity struct {
@@ -45,7 +46,7 @@ func (eh *PairsBoard) SetEntity(entity interface{}) {
 	eh.PairsBoardEntity = entity.(*PairsBoardEntity)
 }
 
-func (board PairsBoardEntity) Rows() (rows [][]rune) {
+func (board PairsBoardEntity) Rows() (rows [][]string) {
 	var x, y = 0, 0
 	width, height := board.Size.WidthHeight()
 	if width <= 0 || height <= 0 {
@@ -54,46 +55,44 @@ func (board PairsBoardEntity) Rows() (rows [][]rune) {
 	if width == 0 || height == 0 {
 		return
 	}
-	rows = make([][]rune, height)
-	rows[0] = make([]rune, width)
-	for _, r := range board.Cells {
+	rows = make([][]string, height)
+	rows[0] = make([]string, width)
+	for _, r := range strings.Split(board.Cells, ",") {
 		rows[y][x] = r
 		if x++; x == width {
 			x = 0
 			if y++; y < height {
-				rows[y] = make([]rune, width)
+				rows[y] = make([]string, width)
 			}
 		}
 	}
 	return
 }
 
-func (board PairsBoardEntity) GetCell(ca turnbased.CellAddress) rune {
+func (board PairsBoardEntity) GetCell(ca turnbased.CellAddress) string {
 	if ca == "" {
 		panic("Cell address is required to get cell value")
 	}
 	x, y := ca.XY()
 	k := y*board.Size.Width() + x
 	var runeIndex int
-	for _, r := range board.Cells {
+	for _, r := range strings.Split(board.Cells, ",") {
 		if runeIndex == k {
 			return r
 		}
 		runeIndex++
 	}
-	return 0
+	return ""
 }
 
-func (board PairsBoardEntity) DrawBoard() string {
+func (board PairsBoardEntity) DrawBoard(colSeparator, rowSeparator string) string {
 	s := new(bytes.Buffer)
 
 	s.WriteRune('\n')
 	rows := board.Rows()
 	for _, row := range rows {
-		for _, r := range row {
-			s.WriteRune(r)
-		}
-		s.WriteRune('\n')
+		s.WriteString(strings.Join(row, colSeparator))
+		s.WriteString(rowSeparator)
 	}
 	return s.String()
 }
@@ -102,13 +101,18 @@ func (board PairsBoardEntity) IsCompleted(players []PairsPlayer) (isCompleted bo
 	if len(players) == 0 {
 		return false
 	}
-	s := board.Cells
+	cells := "," + board.Cells + ","
 	for _, p := range players {
-		for _, tile := range p.MatchedItems {
-			s = strings.Replace(s, string(tile), "", 2)
+		matchedTiles := strings.Split(p.MatchedItems, ",")
+		for i, matchedCell := range matchedTiles {
+			cells = strings.Replace(cells, ","+matchedCell+",", ",", 2)
+			if i+1 == len(matchedTiles) && cells == "," + matchedCell + "," {
+				return true
+			}
 		}
 	}
-	return s == ""
+
+	return cells == ","
 }
 
 func (board *PairsBoardEntity) Load(ps []datastore.Property) (err error) {
@@ -128,74 +132,33 @@ func (board *PairsBoardEntity) Save() (properties []datastore.Property, err erro
 	return
 }
 
+var goodEmojies []string
 
-func emojiSet() []rune {
-	return []rune{
-		'🚀',
-		'🚁',
-		'🚂',
-		'🚃',
-		'🚄',
-		'🚅',
-		'🚆',
-		'🚇',
-		'🚈',
-		'🚉',
-		'🚊',
-		'🚋',
-		'🚌',
-		'🚍',
-		'🚎',
-		'🚏',
-		'🚐',
-		'🚑',
-		'🚒',
-		'🚓',
-		'🚔',
-		'🚕',
-		'🚖',
-		'🚗',
-		'🚘',
-		'🚙',
-		'🚚',
-		'🚛',
-		'🚜',
-		'🚝',
-		'🚞',
-		'🚟',
-		'🚠',
-		'🚡',
-		'🚢',
-		'🚣',
-		'🚤',
-		'🚥',
-		'🚦',
-		'🚧',
-		'🚨',
-		'🚩',
-		'🚪',
-		'🚫',
-		'🚬',
-		'🚭',
-		'🚮',
-		'🚯',
-		'🚰',
-		'🚱',
-		'🚲',
-		'🚳',
-		'🚴',
-		'🚵',
-		'🚶',
-		'🚷',
-		'🚸',
-		'🚹',
-		'🚺',
-		'🚻',
-		'🚼',
-		'🚽',
-		'🚾',
-		'🚿',
+func emojiSet() []string {
+	if len(goodEmojies) == 0 {
+		categories := [][]string{
+			emoji.CategoryActivity,
+			emoji.CategoryFlags,
+			emoji.CategoryFoods,
+			emoji.CategoryNature,
+			emoji.CategoryObjects,
+			emoji.CategoryPeople,
+			emoji.CategoryPlaces,
+		}
+		var length int
+		for _, category := range categories {
+			length += len(category)
+		}
+		goodEmojies = make([]string, length)
+		var i int
+		for _, category := range categories {
+			for _, emoji := range category {
+				goodEmojies[i] = emoji
+				i++
+			}
+		}
 	}
+	return goodEmojies[:]
 }
 
 var rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -204,21 +167,28 @@ func NewCells(width, height int) string {
 	available := emojiSet()
 	pairsCount := width * height / 2
 
-	items := make([]rune, pairsCount*2)
+	items := make([]string, pairsCount*2)
 	for i := 0; i < pairsCount; i++ {
+	random:
+		rndCount := 0
 		randIndex := rnd.Intn(len(available))
+		for k := 0; k < i; k++ {
+			if items[k] == available[randIndex] {
+				rndCount++
+				if rndCount > 100 {
+					panic("rndCount > 100")
+				}
+				goto random
+			}
+		}
 		items[i] = available[randIndex]
 		items[i+pairsCount] = available[randIndex]
-		available = append(available[:randIndex], available[randIndex+1:]...)
 	}
 	shuffle(rnd, len(items), func(i, j int) {
 		items[i], items[j] = items[j], items[i]
 	})
-	var s bytes.Buffer
-	for _, r := range items {
-		s.WriteRune(r)
-	}
-	return s.String()
+
+	return strings.Join(items, ",")
 }
 
 // Shuffle pseudo-randomizes the order of elements.

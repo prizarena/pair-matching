@@ -53,11 +53,11 @@ func OpenCell(
 			return s.String()
 		}()
 		closeAlreadyMatched := func(p pairmodels.PairsPlayer) (pChanged bool) {
-			if p.Open1 != "" && strings.Contains(allAlreadyMatchedItems, string(board.GetCell(p.Open1))) {
+			if p.Open1 != "" && strings.Contains(allAlreadyMatchedItems, board.GetCell(p.Open1)) {
 				p.Open1 = ""
 				pChanged = true
 			}
-			if p.Open2 != "" && strings.Contains(allAlreadyMatchedItems, string(board.GetCell(p.Open2))) {
+			if p.Open2 != "" && strings.Contains(allAlreadyMatchedItems, board.GetCell(p.Open2)) {
 				p.Open2 = ""
 				pChanged = true
 			}
@@ -74,7 +74,7 @@ func OpenCell(
 	atLeastOneMatched := false
 
 	for _, p := range players {
-		if strings.Contains(p.MatchedItems, string(currentlyOpened)) {
+		if p.IsAlreadyMatched(currentlyOpened) {
 			err = ErrAlreadyMatched
 			if p.Open1 != "" && board.GetCell(p.Open1) == currentlyOpened {
 				p.Open1 = ""
@@ -142,7 +142,12 @@ func OpenCell(
 			player.Open2 = ca
 		}
 		player.MatchedCount++
-		player.MatchedItems += string(currentlyOpened)
+		if player.MatchedItems == "" {
+			player.MatchedItems += currentlyOpened
+		} else {
+			player.MatchedItems += "," + currentlyOpened
+		}
+
 		return
 	}
 

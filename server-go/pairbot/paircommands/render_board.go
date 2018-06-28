@@ -27,7 +27,7 @@ func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament pamode
 	}
 	if isCompleted {
 		fmt.Fprintf(text,"\n<b>%v:</b>", t.Translate(pairtrans.Board))
-		text.WriteString(board.DrawBoard())
+		text.WriteString(board.DrawBoard("", "\n"))
 		fmt.Fprintf(text, "\n<b>%v</b>", t.Translate(pairtrans.ChooseSizeOfNextBoard))
 		if board.UsersMax == 1 || tournament.ID != "" {
 			m.Keyboard = getNewPlayTgInlineKbMarkup(lang, tournament.ID, board.UsersMax)

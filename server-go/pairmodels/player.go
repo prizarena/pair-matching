@@ -19,6 +19,9 @@ type PairsPlayerEntity struct {
 	Open2         turnbased.CellAddress `datastore:"po2,noindex,omitempty"`
 }
 
+func (entity PairsPlayerEntity) IsAlreadyMatched(v string) bool {
+	return strings.Contains("," + entity.MatchedItems + ",", ","+v+",")
+}
 const PairsPlayerKind = "P"
 
 type PairsPlayer struct {
@@ -58,9 +61,9 @@ func (player *PairsPlayer) SetEntity(entity interface{}) {
 }
 
 func (player PairsPlayer) BeforeSave() error {
-	counts := make(map[rune]int, player.MatchedCount)
+	counts := make(map[string]int, player.MatchedCount)
 	var matchedCount int
-	for _, r := range player.MatchedItems {
+	for _, r := range strings.Split(player.MatchedItems, ",") {
 		counts[r]++
 		matchedCount++
 	}
