@@ -12,9 +12,9 @@ import (
 	"bytes"
 	"github.com/prizarena/pair-matching/server-go/pairtrans"
 	"github.com/strongo/emoji/go/emoji"
-	"github.com/strongo/emoji/go"
 	"context"
 	"github.com/strongo/log"
+	"github.com/strongo/emoji/go"
 )
 
 func renderPairsBoardMessage(c context.Context, t strongo.SingleLocaleTranslator, tournament pamodels.Tournament, board pairmodels.PairsBoard, matchedTile, userID string, players []pairmodels.PairsPlayer) (m bots.MessageFromBot, err error) {
@@ -32,20 +32,29 @@ func renderPairsBoardMessage(c context.Context, t strongo.SingleLocaleTranslator
 		case 0: // Nothing
 		case 1:
 			fmt.Fprintf(text, t.Translate(pairtrans.SinglePlayerMatchedOne))
+			fmt.Fprint(text, "; ")
 		default:
 			fmt.Fprintf(text, t.Translate(pairtrans.SinglePlayerMatchedCount, players[0].MatchedCount))
+			fmt.Fprint(text, "; ")
 		}
+		fmt.Fprintf(text, t.Translate(pairtrans.Flips, board.PairsPlayerEntity.FlipsCount))
+		fmt.Fprint(text, "\n")
 	} else {
 		for i, p := range players {
 			fmt.Fprintf(text, "%d. <b>%v</b>: %v\n", i+1, p.UserName, p.MatchedCount)
 		}
 	}
+	if matchedTile != "" {
+		if info, ok := emojis.All[matchedTile]; ok {
+			fmt.Fprintf(text, "%v - %v\n", matchedTile, info.Description)
+			if info.Category == "Flags" {
+				fmt.Fprintf(text, "%v\n", t.Translate(pairtrans.FlagOfTheDay))
+			}
+		}
+	}
 	if isCompleted {
 		fmt.Fprintf(text,"\n<b>%v:</b>", t.Translate(pairtrans.Board))
 		text.WriteString(board.DrawBoard("", "\n"))
-		if board.UsersMax == 1 {
-			fmt.Fprintf(text, "\n" + t.Translate(pairtrans.Flips, board.PairsPlayerEntity.FlipsCount))
-		}
 		fmt.Fprintf(text, "\n<b>%v</b>", t.Translate(pairtrans.ChooseSizeOfNextBoard))
 
 		var keyboard *tgbotapi.InlineKeyboardMarkup
@@ -96,14 +105,6 @@ func renderPairsBoardMessage(c context.Context, t strongo.SingleLocaleTranslator
 			kbRows[y] = kbRow
 		}
 		m.Keyboard = tgbotapi.NewInlineKeyboardMarkup(kbRows...)
-	}
-	if matchedTile != "" {
-		if info, ok := emojis.All[matchedTile]; ok {
-			fmt.Fprintf(text, "\n%v - %v", matchedTile, info.Description)
-			if info.Category == "Flags" {
-				fmt.Fprintf(text, "\n %v", t.Translate(pairtrans.FlagOfTheDay))
-			}
-		}
 	}
 	m.Text = text.String()
 	return
