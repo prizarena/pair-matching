@@ -22,6 +22,10 @@ func OpenCell(
 	if ca == "" {
 		panic("Cell address is required to open a cell")
 	}
+	if len(players) == 0 {
+		panic("len(players) == 0")
+		// players = []pairmodels.PairsPlayer{player}
+	}
 	if board.IsCompleted(players) {
 		err = ErrBoardIsCompleted
 		return

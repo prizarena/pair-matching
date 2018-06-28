@@ -104,9 +104,11 @@ func (board PairsBoardEntity) IsCompleted(players []PairsPlayer) (isCompleted bo
 	cells := "," + board.Cells + ","
 	for _, p := range players {
 		matchedTiles := strings.Split(p.MatchedItems, ",")
-		for i, matchedCell := range matchedTiles {
-			cells = strings.Replace(cells, ","+matchedCell+",", ",", 2)
-			if i+1 == len(matchedTiles) && cells == "," + matchedCell + "," {
+		for _, matchedCell := range matchedTiles {
+			for i := 0; i < 2; i++ {
+				cells = strings.Replace(cells, ","+matchedCell+",", ",", 1)
+			}
+			if cells == ",," {
 				return true
 			}
 		}

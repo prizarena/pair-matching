@@ -11,11 +11,14 @@ import (
 	"github.com/prizarena/turn-based"
 	"bytes"
 	"github.com/prizarena/pair-matching/server-go/pairtrans"
+	"context"
+	"github.com/strongo/log"
 )
 
-func renderPairsBoardMessage(t strongo.SingleLocaleTranslator, tournament pamodels.Tournament, board pairmodels.PairsBoard, userID string, players []pairmodels.PairsPlayer) (m bots.MessageFromBot, err error) {
-	lang := t.Locale().Code5
+func renderPairsBoardMessage(c context.Context, t strongo.SingleLocaleTranslator, tournament pamodels.Tournament, board pairmodels.PairsBoard, userID string, players []pairmodels.PairsPlayer) (m bots.MessageFromBot, err error) {
 	isCompleted := board.IsCompleted(players)
+	log.Debugf(c, "renderPairsBoardMessage(): isCompleted=%v", isCompleted)
+	lang := t.Locale().Code5
 	m.IsEdit = true
 	m.Format = bots.MessageFormatHTML
 	text := new(bytes.Buffer)

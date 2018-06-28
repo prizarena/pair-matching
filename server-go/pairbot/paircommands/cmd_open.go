@@ -157,7 +157,8 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 
 		var players []pairmodels.PairsPlayer
 
-		var isAlreadyMatched, isAlreadyOpen bool
+		var isAlreadyMatched, isAlreadyOpen, isAlreadyCompleted bool
+
 		// =[ Start of transaction ]=
 		txOptions := db.CrossGroupTransaction
 		if playersCount > 1 {
@@ -261,6 +262,7 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 
 			var changed bool
 			// var changedPlayers []pairmodels.PairsPlayer
+			log.Debugf(c, "len(players): %v; Board: %v; players[0].MatchedItems: %v", len(players), board.Cells, players[0].MatchedItems)
 			// ===================================================================================================
 			if changed, _, err = pairgame.OpenCell(board.PairsBoardEntity, ca, player, players); err != nil {
 				// ================================================================================================
@@ -272,7 +274,7 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 					isAlreadyMatched = true
 					err = nil
 				case pairgame.ErrBoardIsCompleted:
-					log.Debugf(c, err.Error())
+					isAlreadyCompleted = true
 					err = nil
 				}
 			}
@@ -317,7 +319,11 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 		// 	m, err = renderPairsBoardMessage(whc, nil, board, []pairmodels.PairsPlayer{player})
 		// 	return
 		// }
-		if isAlreadyMatched {
+		log.Debugf(c, "isAlreadyCompleted: %v, isAlreadyMatched: %v, isAlreadyOpen: %v", isAlreadyCompleted, isAlreadyMatched, isAlreadyOpen)
+		switch true {
+		case isAlreadyCompleted:
+			// nothing special
+		case isAlreadyMatched:
 			m.BotMessage = telegram.CallbackAnswer(tgbotapi.AnswerCallbackQueryConfig{
 				Text:      "This cell is already matched",
 				CacheTime: 10,
@@ -326,8 +332,7 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 				log.Errorf(c, "Failed to send already matched alert: %v", err)
 				err = nil
 			}
-		}
-		if isAlreadyOpen {
+		case isAlreadyOpen:
 			m.BotMessage = telegram.CallbackAnswer(tgbotapi.AnswerCallbackQueryConfig{
 				Text:      "This cell is already open by you",
 				CacheTime: 10,
@@ -338,7 +343,7 @@ var openCellCommand = bots.NewCallbackCommand(openCellCommandCode,
 			}
 		}
 		tournament := pamodels.Tournament{StringID: db.NewStrID(board.TournamentID)}
-		return renderPairsBoardMessage(whc, tournament, board, userID, players)
+		return renderPairsBoardMessage(c, whc, tournament, board, userID, players)
 	},
 )
 
