@@ -12,10 +12,11 @@ import (
 	"github.com/prizarena/prizarena-public/pamodels"
 )
 
-const newPlayCommandCode = "new_play"
+const newSinleplayerCommandCode = "singleplayer"
 
 var newPlayCommand = bots.Command{
-	Code: newPlayCommandCode,
+	Code:     newSinleplayerCommandCode,
+	Commands: []string{"/singleplayer"},
 	Action: func(whc bots.WebhookContext) (m bots.MessageFromBot, err error) {
 		return newPlayAction(whc, "", 1)
 	},
