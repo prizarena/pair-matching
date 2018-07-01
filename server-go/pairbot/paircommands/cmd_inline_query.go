@@ -21,7 +21,7 @@ var inlineQueryCommand = bots.NewInlineQueryCommand(
 		}
 		words := strings.Split(inlineQuery.Text, " ")
 
-		removeLang := func() {
+		removeLang := func() { // TODO: reuse? currently copy-pasted
 			if len(words) == 1 {
 				words = []string{}
 			} else {
@@ -33,7 +33,6 @@ var inlineQueryCommand = bots.NewInlineQueryCommand(
 			whc.SetLocale("ru-RU")
 			removeLang()
 		case "en":
-			words = words[1:]
 			removeLang()
 		}
 
