@@ -123,7 +123,7 @@ var newBoardCommand = bots.NewCallbackCommand(
 			}
 			// if !slices.IsInStringSlice(userID, board.UserIDs) {
 			// 	changed = true
-			// 	board.AddUser(userID, botAppUser.(*pairmodels.UserEntity).FullName())
+			// 	board.AddUser(userID, botAppUser.(*pairmodels.UserEntity).GetFullName())
 			// }
 			if changed {
 				if err = pairdal.DB.Update(tc, &board); err != nil {

@@ -14,7 +14,6 @@ import (
 	"github.com/strongo/bots-framework/platforms/telegram"
 	"github.com/strongo/bots-api-telegram"
 	"github.com/strongo/log"
-	"github.com/strongo/slices"
 	"strconv"
 	"github.com/pkg/errors"
 	"bytes"
@@ -95,33 +94,15 @@ func openCellCallbackAction(whc bots.WebhookContext, callbackUrl *url.URL) (m bo
 		data.playerEntityHolders = make([]db.EntityHolder, 0, 1)
 	}
 
-	var addUserToBoardCalled int
-	addUserToBoard := func() (err error) {
-		if addUserToBoardCalled++; addUserToBoardCalled > 1 {
-			err = errors.New("addUserToBoardCalled should be called just once")
-			return
-		}
-		log.Debugf(c, "addUserToBoard")
-		var botAppUser bots.BotAppUser
-		if !slices.IsInStringSlice(userID, data.board.UserIDs) {
-			if data.userName == "" {
-				if botAppUser, err = whc.GetAppUser(); err != nil {
-					return
-				}
-				data.userName = botAppUser.(*pairmodels.UserEntity).FullName()
-			}
-			data.board.AddUser(userID, data.userName)
-		}
-		return
-	}
-
 	if data.playersCount > 1 {
 		if isNewUser {
 			err = pairdal.DB.RunInTransaction(c, func(tc context.Context) (err error) {
 				if err = pairdal.DB.Get(tc, &data.board); err != nil {
 					return
 				}
-				if err = addUserToBoard(); err != nil {
+				data.userName, data.board.BoardEntityBase, err = turnbased.BoardUsersManagers{}.AddUserToBoard(
+					c, userID, data.userName, data.board.PairsBoardEntity.BoardEntityBase, whc.GetAppUser)
+				if err != nil {
 					return
 				}
 				if err = pairdal.DB.Update(tc, &data.board); err != nil {
